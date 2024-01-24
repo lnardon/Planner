@@ -28,5 +28,12 @@ body {
 
 .content {
   display: flex;
+  flex-direction: column;
   flex: 4;
+  gap: 2rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
 }

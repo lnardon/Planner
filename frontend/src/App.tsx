@@ -16,8 +16,8 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          task,
-          date,
+          name: task,
+          date: date?.toISOString().split("T")[0],
         }),
       });
 
@@ -36,7 +36,7 @@ function App() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        taskId,
+        id: taskId,
         status: "completed",
       }),
     });
@@ -49,14 +49,16 @@ function App() {
   }
 
   useEffect(() => {
-    fetch("/getTasks", {}).then((res) => {
-      if (res.ok) {
-        res.json().then((data) => {
-          setTasks(data || []);
-        });
+    fetch(`/getTasks?date=${date?.toISOString().split("T")[0]}`, {}).then(
+      (res) => {
+        if (res.ok) {
+          res.json().then((data) => {
+            setTasks(data || []);
+          });
+        }
       }
-    });
-  }, []);
+    );
+  }, [date]);
 
   return (
     <div className="app">
@@ -71,7 +73,7 @@ function App() {
       </div>
       <div className="content">
         <h1 className="text-4xl font-bold underline">{date?.toDateString()}</h1>
-        <div>
+        <div className="list">
           {tasks.map((task) => (
             <div key={task.id} className="flex items-center">
               <input
