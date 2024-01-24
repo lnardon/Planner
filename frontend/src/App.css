@@ -1,4 +1,32 @@
+body {
+  width: 100%;
+  min-height: 100vh;
+}
+
 #root {
+  width: 100%;
   max-width: 1920px;
+  min-height: 100vh;
   padding: 2rem;
+}
+
+.app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 2rem;
+}
+
+.content {
+  display: flex;
+  flex: 4;
 }
