@@ -1,6 +1,9 @@
 import "./App.css";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 
 function App() {
@@ -21,9 +24,7 @@ function App() {
         }),
       });
 
-      if (res.ok) {
-        alert("Task created");
-      } else {
+      if (!res.ok) {
         alert("Error creating task");
       }
     }
@@ -41,11 +42,21 @@ function App() {
       }),
     });
 
-    if (res.ok) {
-      alert("Task updated");
-    } else {
+    if (!res.ok) {
       alert("Error updating task");
     }
+
+    setTasks((tasks) => {
+      return tasks.map((task) => {
+        if (task.id === taskId) {
+          return {
+            ...task,
+            status: "completed",
+          };
+        }
+        return task;
+      });
+    });
   }
 
   useEffect(() => {
@@ -58,6 +69,14 @@ function App() {
         }
       }
     );
+
+    // setTasks([
+    //   {
+    //     id: "1",
+    //     name: "Task 1",
+    //     status: "pending",
+    //   },
+    // ]);
   }, [date]);
 
   return (
@@ -69,19 +88,32 @@ function App() {
           onSelect={setDate}
           className="rounded-md border"
         />
-        <Button onClick={handleCreateTask}>Add task</Button>
+        <Button onClick={handleCreateTask} className="font-bold">
+          Add task
+        </Button>
       </div>
       <div className="content">
-        <h1 className="text-4xl font-bold underline">{date?.toDateString()}</h1>
+        <h1 className="text-4xl font-bold">{date?.toDateString()}</h1>
+        <Separator />
         <div className="list">
           {tasks.map((task) => (
-            <div key={task.id} className="flex items-center">
-              <input
-                type="checkbox"
+            <div
+              key={task.id}
+              className="flex items-center cursor-pointer mb-2"
+            >
+              <Checkbox
                 checked={task.status === "completed"}
-                onChange={() => handleUpdateTask(task.id)}
+                onClick={() => handleUpdateTask(task.id)}
+                id={task.id}
+                name={`task${task.id}}`}
+                className="w-6 h-6 mr-2"
               />
-              <p className="ml-2">{task.name}</p>
+              <Label
+                htmlFor={`task${task.id}}`}
+                className="text-xl font-medium"
+              >
+                {task.name}
+              </Label>
             </div>
           ))}
         </div>
