@@ -74,7 +74,7 @@ func handleGetTasksByDate(w http.ResponseWriter, r *http.Request) {
     }
     defer rows.Close()
 
-    var tasks []Task
+    tasks := make([]Task, 0);
     for rows.Next() {
         var task Task
         err := rows.Scan(&task.ID, &task.Name, &task.Status, &task.Date)
@@ -124,12 +124,43 @@ func handleUpdateTaskStatus(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
 }
 
+func handleDeleteTask(w http.ResponseWriter, r *http.Request) {
+    var updatedTask UpdateStatusRequest
+    err := json.NewDecoder(r.Body).Decode(&updatedTask)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    defer r.Body.Close()
+
+    db, err := sql.Open("sqlite3", "./database.db")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+
+    statement, err := db.Prepare("DELETE FROM tasks WHERE id = ?")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer statement.Close()
+
+    _, err = statement.Exec(updatedTask.ID)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+}
+
 
 func main () {
     http.Handle("/", http.FileServer(http.Dir("./frontend/dist")))
     http.HandleFunc("/getTasks", handleGetTasksByDate)
     http.HandleFunc("/createTask", handleCreateTask)
     http.HandleFunc("/updateTask", handleUpdateTaskStatus)
+    http.HandleFunc("/deleteTask", handleDeleteTask)
     
     err := http.ListenAndServe(":8080",nil)
     if err != nil {
