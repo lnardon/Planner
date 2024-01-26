@@ -1,5 +1,6 @@
 import "./App.css";
-import { Plus, Trash, Calendar as CalendarIcon } from "lucide-react";
+import Header from "./components/Header";
+import { Plus, X, Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,7 +38,7 @@ function App() {
         },
         body: JSON.stringify({
           name: taskName,
-          date: currentDate?.toISOString().split("T")[0],
+          date: date?.toISOString().split("T")[0],
         }),
       });
 
@@ -119,6 +120,7 @@ function App() {
 
   return (
     <div className="app">
+      <Header />
       <Dialog>
         <DialogContent>
           <DialogHeader>
@@ -149,47 +151,63 @@ function App() {
           </Popover>
 
           <Button className="font-bold w-full" onClick={handleCreateTask}>
-            <Plus className="mr-2 h-4 w-4" /> Create
+            Create
           </Button>
         </DialogContent>
 
-        <div className="sidebar">
-          <Calendar
-            mode="single"
-            selected={currentDate}
-            onSelect={setCurrentDate}
-            className="rounded-md border"
-          />
-          <DialogTrigger className="w-full">
-            <Button className="font-bold w-full">
-              <Plus className="mr-2 h-4 w-4" /> Add task
-            </Button>
-          </DialogTrigger>
-        </div>
-        <div className="content">
-          <h1 className="text-4xl font-bold">{currentDate?.toDateString()}</h1>
-          <Separator />
-          <div className="list">
-            {tasks.map((task) => (
-              <div key={task.id} className="flex cursor-pointer mb-2 w-100">
-                <Checkbox
-                  checked={task.status === "completed"}
-                  onClick={() => handleUpdateTask(task.id)}
-                  id={task.id}
-                  name={`task${task.id}}`}
-                  className="w-6 h-6 mr-2"
-                />
-                <Label
-                  htmlFor={`task${task.id}}`}
-                  className="text-xl font-medium"
+        <div className="main">
+          <div className="sidebar">
+            <Calendar
+              mode="single"
+              selected={currentDate}
+              onSelect={setCurrentDate}
+              className="rounded-md border"
+            />
+            <DialogTrigger className="w-full">
+              <Button className="font-bold w-full">
+                <Plus className="mr-2 h-4 w-4" /> Add task
+              </Button>
+            </DialogTrigger>
+          </div>
+          <div className="content">
+            <h1 className="text-4xl font-bold">
+              {currentDate?.toDateString()}
+            </h1>
+            <Separator className="separator" />
+            <div className="list">
+              {tasks.map((task, index) => (
+                <div
+                  key={task.id}
+                  className={cn(
+                    "flex cursor-pointer w-100 relative items-center px-2 py-2 rounded-md",
+                    task.status === "completed"
+                      ? "opacity-20 line-through"
+                      : "taskContainer"
+                  )}
+                  style={{ animationDelay: `${index * 0.16}s` }}
                 >
-                  {task.name}
-                </Label>
-                <button onClick={() => handleDeleteTask(task.id)}>
-                  <Trash />
-                </button>
-              </div>
-            ))}
+                  <Checkbox
+                    checked={task.status === "completed"}
+                    onClick={() => handleUpdateTask(task.id)}
+                    id={task.id}
+                    name={`task${task.id}}`}
+                    className="w-6 h-6 mr-2"
+                  />
+                  <Label
+                    htmlFor={`task${task.id}}`}
+                    className="text-xl font-medium"
+                  >
+                    {task.name}
+                  </Label>
+                  <button
+                    onClick={() => handleDeleteTask(task.id)}
+                    className="absolute right-2 w-6 h-6 rounded-sm px-1 py-1 deleteButton"
+                  >
+                    <X className="w-full h-full" stroke="#c80004" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </Dialog>
