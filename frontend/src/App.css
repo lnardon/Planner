@@ -52,7 +52,7 @@ body {
 
 .separator {
   opacity: 0;
-  animation: fadeUp 0.5s ease forwards;
+  animation: fadeUp 0.7s ease forwards;
 }
 
 .list {
@@ -62,8 +62,14 @@ body {
 
 .taskContainer {
   opacity: 0;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.9s ease forwards;
+}
+
+.opaqueTaskContainer {
+  opacity: 0;
   transition: all 0.5s ease-in-out;
-  animation: fadeIn 0.5s ease forwards;
+  animation: opaqueFadeIn 0.9s ease forwards;
 }
 
 .taskContainer:hover {
@@ -77,7 +83,7 @@ body {
 }
 
 .deleteButton:hover {
-  border: 1px solid #ff0000;
+  transform: scale(1.1);
 }
 
 @keyframes fadeIn {
@@ -88,6 +94,18 @@ body {
   to {
     opacity: 1;
     transform: translateX(0rem);
+  }
+}
+
+@keyframes opaqueFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+  to {
+    opacity: 0.2;
+    transform: translateX(0rem);
+    text-decoration: line-through;
   }
 }
 
