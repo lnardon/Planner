@@ -38,7 +38,7 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 2rem;
+  gap: 1rem;
   animation: slideUp 0.9s ease forwards;
   transition: all 0.5s ease-in-out;
 }
@@ -48,6 +48,10 @@ body {
   flex-direction: column;
   flex: 4;
   gap: 1rem;
+  border: 2px solid #ffffff22;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  min-height: 35rem;
 }
 
 .separator {
