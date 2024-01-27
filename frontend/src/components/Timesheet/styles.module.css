@@ -1,0 +1,23 @@
+.timesheet {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 0.25rem;
+}
+
+.hourBlock {
+  opacity: 0;
+  cursor: pointer;
+  animation: fadein 0.5s forwards;
+  border-radius: 0.25rem;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0rem);
+  }
+}
