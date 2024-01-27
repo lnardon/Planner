@@ -1,5 +1,6 @@
 import "./App.css";
 import Header from "./components/Header";
+import AnimatedText from "./components/AnimatedText";
 import { Plus, X, Calendar as CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -170,9 +171,9 @@ function App() {
             </DialogTrigger>
           </div>
           <div className="content">
-            <h1 className="text-4xl font-bold">
-              {currentDate?.toDateString()}
-            </h1>
+            <AnimatedText
+              text={currentDate?.toDateString().split(" ").slice(1).join(" ")}
+            />
             <Separator className="separator" />
             <div className="list">
               {tasks.map((task, index) => (
@@ -181,10 +182,10 @@ function App() {
                   className={cn(
                     "flex cursor-pointer w-100 relative items-center px-2 py-2 rounded-md",
                     task.status === "completed"
-                      ? "opacity-20 line-through"
+                      ? "opaqueTaskContainer"
                       : "taskContainer"
                   )}
-                  style={{ animationDelay: `${index * 0.16}s` }}
+                  style={{ animationDelay: `${index * 80}ms` }}
                 >
                   <Checkbox
                     checked={task.status === "completed"}
@@ -201,7 +202,7 @@ function App() {
                   </Label>
                   <button
                     onClick={() => handleDeleteTask(task.id)}
-                    className="absolute right-2 w-6 h-6 rounded-sm px-1 py-1 deleteButton"
+                    className="absolute right-2 w-6 h-6 rounded-sm deleteButton"
                   >
                     <X className="w-full h-full" stroke="#c80004" />
                   </button>
