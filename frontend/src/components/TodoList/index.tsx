@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon, X } from "lucide-react";
+import { Calendar as CalendarIcon, Check, X } from "lucide-react";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
+import { v4 as uuidv4 } from "uuid";
 
 const TodoList = ({ currentDate }: { currentDate: Date | undefined }) => {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -31,10 +32,14 @@ const TodoList = ({ currentDate }: { currentDate: Date | undefined }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          id: uuidv4(),
           name: taskName,
           date: date?.toISOString().split("T")[0],
+          completed: false,
         }),
       });
+
+      console.log(res);
 
       if (!res.ok) {
         alert("Error creating task");
@@ -44,15 +49,15 @@ const TodoList = ({ currentDate }: { currentDate: Date | undefined }) => {
     }
   }
 
-  async function handleUpdateTask(taskId: string) {
+  async function handleUpdateTask(task: any) {
     const res = await fetch("/updateTask", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        id: taskId,
-        status: "completed",
+        id: task.id,
+        completed: !task.completed,
       }),
     });
 
@@ -60,17 +65,7 @@ const TodoList = ({ currentDate }: { currentDate: Date | undefined }) => {
       alert("Error updating task");
     }
 
-    setTasks((tasks) => {
-      return tasks.map((task) => {
-        if (task.id === taskId) {
-          return {
-            ...task,
-            status: "completed",
-          };
-        }
-        return task;
-      });
-    });
+    window.location.reload();
   }
 
   async function handleDeleteTask(taskId: string) {
@@ -135,7 +130,8 @@ const TodoList = ({ currentDate }: { currentDate: Date | undefined }) => {
         </Popover>
 
         <Button className="font-bold w-full" onClick={handleCreateTask}>
-          Create
+          Done
+          <Check className="pl-2" />
         </Button>
       </DialogContent>
       {tasks.map((task, index) => (
@@ -143,15 +139,13 @@ const TodoList = ({ currentDate }: { currentDate: Date | undefined }) => {
           key={task.id}
           className={cn(
             "flex cursor-pointer w-100 relative items-center px-2 py-3 rounded-sm border-b-2",
-            task.status === "completed"
-              ? "opaqueTaskContainer"
-              : "taskContainer"
+            task.completed ? "opaqueTaskContainer" : "taskContainer"
           )}
           style={{ animationDelay: `${index * 80}ms` }}
         >
           <Checkbox
-            checked={task.status === "completed"}
-            onClick={() => handleUpdateTask(task.id)}
+            checked={task.completed}
+            onClick={() => handleUpdateTask(task)}
             id={task.id}
             name={`task${task.id}}`}
             className="w-6 h-6 mr-2"
