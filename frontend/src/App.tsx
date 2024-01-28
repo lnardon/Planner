@@ -19,13 +19,14 @@ import Timesheet from "./components/Timesheet";
 import TodoList from "./components/TodoList";
 
 function App() {
+  const [open, setOpen] = useState(false);
   const [currentView, setCurrentView] = useState<string>("timesheet");
   const [currentDate, setCurrentDate] = useState<Date | undefined>(new Date());
 
   return (
     <div className="app">
       <Header />
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <div className="main">
           <div className="sidebar">
             <Calendar
@@ -49,7 +50,7 @@ function App() {
 
             <DialogTrigger className="w-full">
               <Button className="font-bold w-full">
-                <Plus className="mr-2 h-4 w-4" /> Add task
+                Create <Plus className="ml-1 h-4 w-4" />
               </Button>
             </DialogTrigger>
           </div>
@@ -60,7 +61,7 @@ function App() {
             {currentView === "todo" && <Separator />}
 
             {currentView === "timesheet" ? (
-              <Timesheet />
+              <Timesheet setOpen={setOpen} />
             ) : (
               <TodoList currentDate={currentDate} />
             )}

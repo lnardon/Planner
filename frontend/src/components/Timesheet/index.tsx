@@ -1,5 +1,15 @@
 import { useState } from "react";
 import styles from "./styles.module.css";
+import { DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Badge } from "../ui/badge";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Calendar as CalendarIcon, ChevronRight } from "lucide-react";
 
 const events = [
   {
@@ -9,16 +19,26 @@ const events = [
     end: 2,
     title: "World domination",
   },
+  {
+    id: 1,
+    date: "2024-01-27",
+    start: 3,
+    end: 5,
+    title: "Rest",
+  },
 ];
 
-const Timesheet: React.FC = () => {
+const Timesheet = ({ setOpen }: { setOpen: any }) => {
   const hours = Array.from(
     { length: 24 },
     (_, i) => `${i % 12}:00 ${i < 12 ? "am" : "pm"}`
   );
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [isDragging, setIsDragging] = useState(false);
   const [startHour, setStartHour] = useState<number | null>(null);
   const [endHour, setEndHour] = useState<number | null>(null);
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
 
   const handleMouseDown = (hourIndex: number) => {
     setIsDragging(true);
@@ -35,9 +55,32 @@ const Timesheet: React.FC = () => {
   const handleMouseUp = () => {
     setIsDragging(false);
     if (startHour !== null && endHour !== null) {
-      console.log("Event created from", startHour, "to", endHour);
+      setOpen(true);
     }
   };
+
+  function handleCreateEvent() {
+    if (startHour !== null && endHour !== null) {
+      fetch("/createEvent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          date: date?.toISOString().split("T")[0],
+          start: startHour,
+          end: endHour,
+          title: name,
+          description,
+        }),
+      }).then((res) => {
+        if (!res.ok) {
+          alert("Error creating event");
+        }
+        window.location.reload();
+      });
+    }
+  }
 
   return (
     <div className={styles.timesheet}>
@@ -56,7 +99,10 @@ const Timesheet: React.FC = () => {
               : ""
           } ${
             events.some((event) => {
-              return event.start == index;
+              return (
+                event.start == index ||
+                (event.start < index && event.end > index)
+              );
             })
               ? "h-32 bg-green-500"
               : ""
@@ -64,6 +110,7 @@ const Timesheet: React.FC = () => {
           onClick={() => {
             setStartHour(index);
             setEndHour(index);
+            setOpen(true);
             console.log("Event created from", startHour, "to", endHour);
           }}
           onMouseDown={() => handleMouseDown(index)}
@@ -98,6 +145,54 @@ const Timesheet: React.FC = () => {
           </div>
         </div>
       ))}
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="text-bold text-2xl mb-1">
+            Create event
+          </DialogTitle>
+        </DialogHeader>
+
+        {startHour !== null && endHour !== null && (
+          <div className="flex gap-0.5">
+            <Badge>{`${startHour % 12}:00 ${
+              startHour < 12 ? "am" : "pm"
+            }`}</Badge>
+            <ChevronRight />
+            <Badge>{`${endHour % 12}:59 ${endHour < 12 ? "am" : "pm"}`}</Badge>
+          </div>
+        )}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-full justify-start text-left font-normal",
+                !date && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date ? format(date, "PPP") : <span>Pick a date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar mode="single" selected={date} onSelect={setDate} />
+          </PopoverContent>
+        </Popover>
+        <Input
+          placeholder="Event name"
+          onChange={(e) => setName(e.target.value)}
+        />
+        <Textarea
+          placeholder="Event description..."
+          className="w-full h-32 mb-4"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <Button className="font-bold w-full" onClick={handleCreateEvent}>
+          Create
+        </Button>
+      </DialogContent>
     </div>
   );
 };
