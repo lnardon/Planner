@@ -6,6 +6,13 @@ body {
   justify-content: center;
   background-color: #030609;
   color: #fafafa;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
 
 #root {
@@ -48,7 +55,7 @@ body {
   flex-direction: column;
   flex: 4;
   gap: 1rem;
-  border: 2px solid #ffffff22;
+  border: 2px solid hsl(var(--border));
   padding: 1rem;
   border-radius: 0.5rem;
   min-height: 35rem;

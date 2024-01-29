@@ -11,6 +11,9 @@
   border-radius: 0.25rem;
 }
 
+.hour {
+  transition: all 0.5s ease;
+}
 @keyframes fadein {
   from {
     opacity: 0;

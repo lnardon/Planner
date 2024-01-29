@@ -61,9 +61,9 @@ function App() {
             {currentView === "todo" && <Separator />}
 
             {currentView === "timesheet" ? (
-              <Timesheet setOpen={setOpen} />
+              <Timesheet currentDate={currentDate} setOpen={setOpen} />
             ) : (
-              <TodoList currentDate={currentDate} />
+              <TodoList currentDate={currentDate} setOpen={setOpen} />
             )}
           </div>
         </div>

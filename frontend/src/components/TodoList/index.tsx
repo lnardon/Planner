@@ -19,33 +19,40 @@ import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { v4 as uuidv4 } from "uuid";
 
-const TodoList = ({ currentDate }: { currentDate: Date | undefined }) => {
+const TodoList = ({
+  currentDate,
+  setOpen,
+}: {
+  currentDate: Date | undefined;
+  setOpen: any;
+}) => {
   const [tasks, setTasks] = useState<any[]>([]);
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [taskName, setTaskName] = useState<string>("");
 
   async function handleCreateTask() {
     if (taskName) {
+      let newTask = {
+        id: uuidv4(),
+        name: taskName,
+        date: date?.toISOString().split("T")[0],
+        completed: false,
+      };
       const res = await fetch("/createTask", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          id: uuidv4(),
-          name: taskName,
-          date: date?.toISOString().split("T")[0],
-          completed: false,
-        }),
+        body: JSON.stringify(newTask),
       });
-
-      console.log(res);
 
       if (!res.ok) {
         alert("Error creating task");
       }
 
-      window.location.reload();
+      setTasks([...tasks, newTask]);
+      setTaskName("");
+      setOpen(false);
     }
   }
 
@@ -65,7 +72,14 @@ const TodoList = ({ currentDate }: { currentDate: Date | undefined }) => {
       alert("Error updating task");
     }
 
-    window.location.reload();
+    setTasks(
+      tasks.map((t) => {
+        if (t.id === task.id) {
+          return { ...t, completed: !t.completed };
+        }
+        return t;
+      })
+    );
   }
 
   async function handleDeleteTask(taskId: string) {
@@ -83,7 +97,7 @@ const TodoList = ({ currentDate }: { currentDate: Date | undefined }) => {
       alert("Error deleting task");
     }
 
-    window.location.reload();
+    setTasks(tasks.filter((task) => task.id !== taskId));
   }
 
   useEffect(() => {
