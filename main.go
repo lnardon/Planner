@@ -235,6 +235,36 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(newEvent)
 }
 
+func handleDeleteEvent(w http.ResponseWriter, r *http.Request) {
+    var updatedEvent Event
+    err := json.NewDecoder(r.Body).Decode(&updatedEvent)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    defer r.Body.Close()
+
+    db, err := sql.Open("sqlite3", "./database.db")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+
+    statement, err := db.Prepare("DELETE FROM events WHERE id = ?")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer statement.Close()
+
+    _, err = statement.Exec(updatedEvent.ID)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+}
+
 func main () {
     http.Handle("/", http.FileServer(http.Dir("./frontend/dist")))
 
@@ -245,6 +275,7 @@ func main () {
 
     http.HandleFunc("/getEvents", handleGetEventsByDate)
     http.HandleFunc("/createEvent", handleCreateEvent)
+    http.HandleFunc("/deleteEvent", handleDeleteEvent)
     
     err := http.ListenAndServe(":8080",nil)
     if err != nil {

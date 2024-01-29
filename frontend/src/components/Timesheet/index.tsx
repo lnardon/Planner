@@ -12,6 +12,15 @@ import { cn } from "@/lib/utils";
 import { Calendar as CalendarIcon, ChevronRight, Check } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { v4 as uuidv4 } from "uuid";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 const Timesheet = ({
   currentDate,
@@ -20,11 +29,18 @@ const Timesheet = ({
   currentDate: any;
   setOpen: any;
 }) => {
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isDragging, setIsDragging] = useState(false);
+  const [startHour, setStartHour] = useState<number | null>(null);
+  const [endHour, setEndHour] = useState<number | null>(null);
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [drawerEvent, setDrawerEvent] = useState<any>(null);
   const hours = Array.from(
     { length: 24 },
     (_, i) => `${i % 12}:00 ${i < 12 ? "am" : "pm"}`
   );
-  const [date, setDate] = useState<Date | undefined>(new Date());
   const [events, setEvents] = useState<any[]>([
     {
       id: "a3sgsdfg",
@@ -34,11 +50,6 @@ const Timesheet = ({
       name: "Save the world",
     },
   ]);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startHour, setStartHour] = useState<number | null>(null);
-  const [endHour, setEndHour] = useState<number | null>(null);
-  const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
 
   const handleMouseDown = (hourIndex: number) => {
     setIsDragging(true);
@@ -86,17 +97,37 @@ const Timesheet = ({
     }
   }
 
+  function handleDeleteEvent() {
+    if (drawerEvent) {
+      fetch("/deleteEvent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: drawerEvent.id,
+        }),
+      }).then((res) => {
+        if (!res.ok) {
+          alert("Error deleting event");
+        }
+
+        setIsDrawerOpen(false);
+        setEvents(events.filter((event) => event.id !== drawerEvent.id));
+      });
+    }
+  }
+
   useEffect(() => {
-    fetch(
-      `/getEvents?date=${currentDate?.toISOString().split("T")[0]}`,
-      {}
-    ).then((res) => {
-      if (res.ok) {
-        res.json().then((data) => {
-          setEvents(data || []);
-        });
+    fetch(`/getEvents?date=${currentDate?.toISOString().split("T")[0]}`).then(
+      (res) => {
+        if (res.ok) {
+          res.json().then((data) => {
+            setEvents(data || []);
+          });
+        }
       }
-    });
+    );
   }, [currentDate]);
 
   return (
@@ -123,7 +154,10 @@ const Timesheet = ({
                       setEndHour(index);
                       setOpen(true);
                     }
-                  : undefined
+                  : () => {
+                      setIsDrawerOpen(true);
+                      setDrawerEvent(eventStart);
+                    }
               }
               onMouseDown={() => handleMouseDown(index)}
               onMouseEnter={() => handleMouseEnter(index)}
@@ -205,6 +239,45 @@ const Timesheet = ({
           <Check className="pl-2" />
         </Button>
       </DialogContent>
+
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent className="w-full flex items-center bg-green-500">
+          <div className="w-96 mx-4 my-8 p-4 bg-black bg-opacity-80 rounded-md">
+            <DrawerHeader>
+              <DrawerTitle className="mb-2">{drawerEvent?.name}</DrawerTitle>
+              {drawerEvent?.description && (
+                <DrawerDescription className="mb-2">
+                  {drawerEvent?.description}
+                </DrawerDescription>
+              )}
+              {drawerEvent && (
+                <div className="flex gap-0.5">
+                  <Badge className="text-sm font-bold bg-black text-white border-solid border-2 border-white">{`${
+                    drawerEvent?.start % 12
+                  }:00 ${drawerEvent?.start < 12 ? "am" : "pm"}`}</Badge>
+                  <ChevronRight />
+                  <Badge className="text-sm font-bold bg-black text-white border-solid border-2 border-white">{`${
+                    drawerEvent.end % 12
+                  }:59 ${drawerEvent?.end < 12 ? "am" : "pm"}`}</Badge>
+                </div>
+              )}
+            </DrawerHeader>
+            <DrawerFooter>
+              <Button
+                className="bg-red-600 font-bold text-white"
+                onClick={handleDeleteEvent}
+              >
+                Delete
+              </Button>
+              <DrawerClose>
+                <Button variant="outline" className="w-full">
+                  Cancel
+                </Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
