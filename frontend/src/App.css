@@ -74,13 +74,13 @@ body::-webkit-scrollbar {
 .taskContainer {
   opacity: 0;
   transition: all 0.3s ease;
-  animation: fadeIn 0.9s ease forwards;
+  animation: fadeIn 0.5s ease forwards;
 }
 
 .opaqueTaskContainer {
   opacity: 0;
   transition: all 0.5s ease-in-out;
-  animation: opaqueFadeIn 0.9s ease forwards;
+  animation: opaqueFadeIn 0.5s ease forwards;
 }
 
 .taskContainer:hover {

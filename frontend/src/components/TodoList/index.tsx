@@ -27,7 +27,7 @@ const TodoList = ({
   setOpen: any;
 }) => {
   const [tasks, setTasks] = useState<any[]>([]);
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(currentDate);
   const [taskName, setTaskName] = useState<string>("");
 
   async function handleCreateTask() {
@@ -101,16 +101,19 @@ const TodoList = ({
   }
 
   useEffect(() => {
-    fetch(
-      `/getTasks?date=${currentDate?.toISOString().split("T")[0]}`,
-      {}
-    ).then((res) => {
-      if (res.ok) {
-        res.json().then((data) => {
-          setTasks(data || []);
-        });
+    fetch(`/getTasks?date=${date?.toISOString().split("T")[0]}`, {}).then(
+      (res) => {
+        if (res.ok) {
+          res.json().then((data) => {
+            setTasks(data || []);
+          });
+        }
       }
-    });
+    );
+  }, [date]);
+
+  useEffect(() => {
+    setDate(currentDate);
   }, [currentDate]);
 
   return (

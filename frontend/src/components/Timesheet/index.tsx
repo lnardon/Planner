@@ -26,10 +26,10 @@ const Timesheet = ({
   currentDate,
   setOpen,
 }: {
-  currentDate: any;
+  currentDate: Date | undefined;
   setOpen: any;
 }) => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(currentDate);
   const [isDragging, setIsDragging] = useState(false);
   const [startHour, setStartHour] = useState<number | null>(null);
   const [endHour, setEndHour] = useState<number | null>(null);
@@ -43,8 +43,8 @@ const Timesheet = ({
   );
   const [events, setEvents] = useState<any[]>([
     {
-      id: "a3sgsdfg",
-      date: "2024-01-27",
+      id: "0",
+      date: date?.toISOString().split("T")[0],
       start: 0,
       end: 1,
       name: "Save the world",
@@ -92,6 +92,10 @@ const Timesheet = ({
         }
 
         setOpen(false);
+        setStartHour(null);
+        setEndHour(null);
+        setDescription("");
+        setName("");
         setEvents([...events, newEvent]);
       });
     }
@@ -119,7 +123,7 @@ const Timesheet = ({
   }
 
   useEffect(() => {
-    fetch(`/getEvents?date=${currentDate?.toISOString().split("T")[0]}`).then(
+    fetch(`/getEvents?date=${date?.toISOString().split("T")[0]}`).then(
       (res) => {
         if (res.ok) {
           res.json().then((data) => {
@@ -128,6 +132,10 @@ const Timesheet = ({
         }
       }
     );
+  }, [date]);
+
+  useEffect(() => {
+    setDate(currentDate);
   }, [currentDate]);
 
   return (
@@ -163,14 +171,13 @@ const Timesheet = ({
               onMouseEnter={() => handleMouseEnter(index)}
               onMouseUp={handleMouseUp}
               style={{
-                animationDelay: `${index * 64 + eventStart ? index * 32 : 0})
-                }ms`,
+                animationDelay: `${index * 64 + eventStart ? index * 8 : 0}ms`,
               }}
             >
               <div
                 className={`select-none ${
                   eventStart
-                    ? "text-white font-bold text-l bg-black h-fit px-2 py-0.5 rounded-sm w-fit"
+                    ? "text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm w-fit"
                     : ""
                 }`}
               >
@@ -192,7 +199,9 @@ const Timesheet = ({
 
       <DialogContent>
         <DialogHeader className="mb-0">
-          <DialogTitle className="text-bold text-2xl">Create event</DialogTitle>
+          <DialogTitle className="text-bold text-2xl text-start">
+            Create event
+          </DialogTitle>
         </DialogHeader>
         <Separator className="mb-0" />
 
