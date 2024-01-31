@@ -89,6 +89,7 @@ const Timesheet = ({
       }).then((res) => {
         if (!res.ok) {
           alert("Error creating event");
+          return;
         }
 
         setOpen(false);
@@ -114,6 +115,7 @@ const Timesheet = ({
       }).then((res) => {
         if (!res.ok) {
           alert("Error deleting event");
+          return;
         }
 
         setIsDrawerOpen(false);
@@ -154,7 +156,15 @@ const Timesheet = ({
                 eventStart ? styles.hourBlock : styles.hour
               } relative flex gap-2 border-t-2 px-2 py-4 rounded-xs ${
                 eventStart ? `h-40 bg-green-500` : "h-16"
-              } flex-col`}
+              } flex-col ${
+                isDragging &&
+                startHour !== null &&
+                endHour !== null &&
+                index >= startHour &&
+                index <= endHour
+                  ? "bg-green-400 bg-opacity-30 text-white rounded-sm"
+                  : ""
+              } `}
               onClick={
                 !eventStart
                   ? () => {
@@ -167,11 +177,15 @@ const Timesheet = ({
                       setDrawerEvent(eventStart);
                     }
               }
-              onMouseDown={() => handleMouseDown(index)}
-              onMouseEnter={() => handleMouseEnter(index)}
+              onMouseDown={eventStart ? () => {} : () => handleMouseDown(index)}
+              onMouseEnter={
+                eventStart
+                  ? () => setEndHour(null)
+                  : () => handleMouseEnter(index)
+              }
               onMouseUp={handleMouseUp}
               style={{
-                animationDelay: `${index * 64 + eventStart ? index * 8 : 0}ms`,
+                animationDelay: `${index * 32}ms`,
               }}
             >
               <div

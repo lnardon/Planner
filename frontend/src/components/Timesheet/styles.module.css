@@ -7,20 +7,40 @@
 .hourBlock {
   opacity: 0;
   cursor: pointer;
-  animation: fadein 0.5s forwards;
+  animation: appear 0.5s ease forwards;
   border-radius: 0.25rem;
 }
 
 .hour {
+  opacity: 0;
+  cursor: pointer;
   transition: all 0.5s ease;
+  animation: fadein 0.5s ease forwards;
 }
+
+.hour:hover {
+  background-color: rgba(34, 197, 94, 0.16);
+  border-radius: 0.5rem;
+}
+
 @keyframes fadein {
   from {
     opacity: 0;
-    transform: translateY(1rem);
+    transform: translateY(0.5rem);
   }
   to {
     opacity: 1;
     transform: translateY(0rem);
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0rem);
   }
 }

@@ -48,6 +48,7 @@ const TodoList = ({
 
       if (!res.ok) {
         alert("Error creating task");
+        return;
       }
 
       setTasks([...tasks, newTask]);
@@ -70,6 +71,7 @@ const TodoList = ({
 
     if (!res.ok) {
       alert("Error updating task");
+      return;
     }
 
     setTasks(
@@ -95,6 +97,7 @@ const TodoList = ({
 
     if (!res.ok) {
       alert("Error deleting task");
+      return;
     }
 
     setTasks(tasks.filter((task) => task.id !== taskId));
