@@ -265,7 +265,7 @@ const Timesheet = ({
 
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent className="w-full flex items-center">
-          <div className="min-w-96 max-w-[35rem] w-full mx-2 my-4 p-6 bg-green-500 rounded-md">
+          <div className="min-w-96 max-w-[35rem] w-full m-4 p-6 bg-green-500 rounded-md">
             <div className="p-2 bg-black bg-opacity-80 rounded-md">
               <DrawerHeader>
                 <DrawerTitle className="mb-0 text-2xl">

@@ -97,6 +97,10 @@ body::-webkit-scrollbar {
   transform: scale(1.1);
 }
 
+#root > div > div.main > div.sidebar > div.rdp.p-3.rounded-md.border > div {
+  align-items: center;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -139,5 +143,32 @@ body::-webkit-scrollbar {
   to {
     opacity: 1;
     transform: translateY(0rem);
+  }
+}
+
+@media (max-width: 720px) {
+  .main {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sidebar {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .content {
+    width: 100%;
+  }
+}
+
+@media (max-width: 512px) {
+  .main {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sidebar {
+    flex-direction: column;
   }
 }

@@ -35,24 +35,26 @@ function App() {
               onSelect={setCurrentDate}
               className="rounded-md border"
             />
-            <Select
-              onValueChange={(val) => setCurrentView(val)}
-              defaultValue={currentView}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="View" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todo">Todo List</SelectItem>
-                <SelectItem value="timesheet">Timesheet</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="w-full">
+              <Select
+                onValueChange={(val) => setCurrentView(val)}
+                defaultValue={currentView}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="View" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todo">Todo List</SelectItem>
+                  <SelectItem value="timesheet">Timesheet</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <DialogTrigger className="w-full">
-              <Button className="font-bold w-full">
-                Create <Plus className="ml-1 h-4 w-4" />
-              </Button>
-            </DialogTrigger>
+              <DialogTrigger className="w-full">
+                <Button className="font-bold w-full">
+                  Create <Plus className="ml-1 h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+            </div>
           </div>
           <div className="content">
             <AnimatedText
