@@ -21,6 +21,8 @@
 .hour:hover {
   background-color: rgba(34, 197, 94, 0.16);
   border-radius: 0.5rem;
+  border-color: rgba(34, 197, 94, 0.32);
+  border-bottom: 2px solid rgba(34, 197, 94, 0.32);
 }
 
 @keyframes fadein {

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import AnimatedText from "./components/AnimatedText";
@@ -13,15 +14,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { useState } from "react";
 import Timesheet from "./components/Timesheet";
 import TodoList from "./components/TodoList";
 
 function App() {
   const [open, setOpen] = useState(false);
   const [currentView, setCurrentView] = useState<string>("timesheet");
-  const [currentDate, setCurrentDate] = useState<Date | undefined>(new Date());
+  // Start currentDate with the correct day using the browser timezone
+  const [currentDate, setCurrentDate] = useState<Date | undefined>(
+    new Date(new Date().toLocaleDateString())
+  );
 
   return (
     <div className="app">
@@ -35,7 +37,7 @@ function App() {
               onSelect={setCurrentDate}
               className="rounded-md border"
             />
-            <div className="w-full">
+            <div className="w-full flex gap-4 flex-col">
               <Select
                 onValueChange={(val) => setCurrentView(val)}
                 defaultValue={currentView}
@@ -44,8 +46,12 @@ function App() {
                   <SelectValue placeholder="View" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todo">Todo List</SelectItem>
-                  <SelectItem value="timesheet">Timesheet</SelectItem>
+                  <SelectItem value="todo" className="cursor-pointer">
+                    Todo List
+                  </SelectItem>
+                  <SelectItem value="timesheet" className="cursor-pointer">
+                    Timesheet
+                  </SelectItem>
                 </SelectContent>
               </Select>
 
@@ -60,12 +66,13 @@ function App() {
             <AnimatedText
               text={currentDate?.toDateString().split(" ").slice(1).join(" ")}
             />
-            {currentView === "todo" && <Separator />}
-
             {currentView === "timesheet" ? (
               <Timesheet currentDate={currentDate} setOpen={setOpen} />
             ) : (
-              <TodoList currentDate={currentDate} setOpen={setOpen} />
+              <>
+                <Separator />
+                <TodoList currentDate={currentDate} setOpen={setOpen} />
+              </>
             )}
           </div>
         </div>
