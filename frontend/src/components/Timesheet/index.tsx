@@ -21,6 +21,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { Bounce, toast } from "react-toastify";
 
 const Timesheet = ({
   currentDate,
@@ -71,7 +72,7 @@ const Timesheet = ({
   };
 
   function handleCreateEvent() {
-    if (startHour !== null && endHour !== null) {
+    if (startHour !== null && endHour !== null && name) {
       let newEvent = {
         id: uuidv4(),
         date: date?.toISOString().split("T")[0],
@@ -88,7 +89,17 @@ const Timesheet = ({
         body: JSON.stringify(newEvent),
       }).then((res) => {
         if (!res.ok) {
-          alert("Error creating event");
+          toast.error("Error creating event", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Bounce,
+          });
           return;
         }
 
@@ -98,6 +109,17 @@ const Timesheet = ({
         setDescription("");
         setName("");
         setEvents([...events, newEvent]);
+        toast.success("Event created successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Bounce,
+        });
       });
     }
   }
@@ -114,12 +136,33 @@ const Timesheet = ({
         }),
       }).then((res) => {
         if (!res.ok) {
-          alert("Error deleting event");
+          toast.error("Error deleting event", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            transition: Bounce,
+          });
           return;
         }
 
         setIsDrawerOpen(false);
         setEvents(events.filter((event) => event.id !== drawerEvent.id));
+        toast.success("Event deleted successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Bounce,
+        });
       });
     }
   }

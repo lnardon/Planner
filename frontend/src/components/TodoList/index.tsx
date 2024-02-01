@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { v4 as uuidv4 } from "uuid";
+import { Bounce, toast } from "react-toastify";
 
 const TodoList = ({
   currentDate,
@@ -47,13 +48,34 @@ const TodoList = ({
       });
 
       if (!res.ok) {
-        alert("Error creating task");
+        toast.error("Error creating task", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          transition: Bounce,
+        });
         return;
       }
 
       setTasks([...tasks, newTask]);
       setTaskName("");
       setOpen(false);
+      toast.success("Task created successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
     }
   }
 
@@ -70,13 +92,36 @@ const TodoList = ({
     });
 
     if (!res.ok) {
-      alert("Error updating task");
+      toast.error("Error updating task", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
       return;
     }
 
     setTasks(
       tasks.map((t) => {
         if (t.id === task.id) {
+          if (!t.completed) {
+            toast.info("Task completed!", {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "dark",
+              transition: Bounce,
+            });
+          }
           return { ...t, completed: !t.completed };
         }
         return t;
@@ -96,11 +141,32 @@ const TodoList = ({
     });
 
     if (!res.ok) {
-      alert("Error deleting task");
+      toast.error("Error deteting task", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Bounce,
+      });
       return;
     }
 
     setTasks(tasks.filter((task) => task.id !== taskId));
+    toast.success("Task deleted successfully!", {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      transition: Bounce,
+    });
   }
 
   useEffect(() => {
