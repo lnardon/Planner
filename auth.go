@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -16,12 +17,12 @@ import (
 var jwtKey = []byte("secret_key") // Change this for a environment variable before release
 
 type Request struct {
-	Email    string `json:"email"`
+	Username    string `json:"username"`
 	Password string `json:"password"`
 }
 
 type Claims struct {
-	Email string `json:"email"`
+	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
@@ -40,17 +41,17 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	statement, err := db.Prepare("SELECT email, password FROM users WHERE email = ?")
+	statement, err := db.Prepare("SELECT username, password FROM users WHERE username = ?")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer statement.Close()
 
-	var email, hashedPassword string
-	err = statement.QueryRow(login.Email).Scan(&email, &hashedPassword)
+	var username, hashedPassword string
+	err = statement.QueryRow(login.Username).Scan(&username, &hashedPassword)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+			http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		} else {
 			log.Fatal(err)
 		}
@@ -58,13 +59,13 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(login.Password)); err != nil {
-		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
 
 	expirationTime := time.Now().Add(360 * time.Minute)
 	claims := &Claims{
-		Email: email,
+		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
@@ -98,7 +99,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	statement, err := db.Prepare("INSERT INTO users (email, password) VALUES (?, ?)")
+	statement, err := db.Prepare("INSERT INTO users (id, username, password) VALUES (?, ?, ?)")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -110,7 +111,9 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = statement.Exec(register.Email, string(hashedPassword))
+	//generate a random id for the user with uuid
+	id := uuid.New().String()
+	_, err = statement.Exec(id, register.Username, string(hashedPassword))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

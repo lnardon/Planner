@@ -13,3 +13,9 @@ CREATE TABLE Events (
     end INTEGER NOT NULL,
     date TEXT NOT NULL
 );
+
+CREATE TABLE Users (
+    id TEXT NOT NULL PRIMARY KEY,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL
+);
