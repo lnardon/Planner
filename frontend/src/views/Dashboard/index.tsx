@@ -19,7 +19,7 @@ import TodoList from "../../components/TodoList";
 const Dashboard: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [currentView, setCurrentView] = useState<string>("timesheet");
-  const [currentDate, setCurrentDate] = useState<Date | undefined>(
+  const [currentDate, setCurrentDate] = useState<Date>(
     new Date(new Date().toLocaleDateString())
   );
 
@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
             <Calendar
               mode="single"
               selected={currentDate}
-              onSelect={setCurrentDate}
+              onSelect={(val) => setCurrentDate(val || new Date())}
               className="rounded-md border"
             />
             <div className="w-full flex gap-4 flex-col">

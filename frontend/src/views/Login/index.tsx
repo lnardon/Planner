@@ -5,7 +5,7 @@ const Login = ({
 }: {
   setIsLoggedIn: (val: boolean) => void;
 }) => {
-  const [user, setUser] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
   function handleLogin() {
@@ -14,7 +14,7 @@ const Login = ({
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ user, password }),
+      body: JSON.stringify({ username, password }),
     }).then((res) => {
       if (res.status === 200) {
         localStorage.setItem("token", "token");
@@ -30,8 +30,8 @@ const Login = ({
       <div className="flex flex-col items-center text-black w-96">
         <input
           type="text"
-          value={user}
-          onChange={(e) => setUser(e.target.value)}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           placeholder="Username"
           className="rounded-md border p-2 mb-4 w-full text-lg"
         />

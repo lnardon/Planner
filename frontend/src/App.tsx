@@ -4,9 +4,7 @@ import Login from "./views/Login";
 import Dashboard from "./views/Dashboard";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(
-    localStorage.getItem("token") !== null
-  );
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
 
   return (
     <div className="app">

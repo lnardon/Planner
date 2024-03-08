@@ -21,7 +21,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Bounce, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const Timesheet = ({
   currentDate,
@@ -38,10 +38,6 @@ const Timesheet = ({
   const [description, setDescription] = useState<string>("");
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [drawerEvent, setDrawerEvent] = useState<any>(null);
-  const hours = Array.from(
-    { length: 24 },
-    (_, i) => `${i % 12}:00 ${i < 12 ? "am" : "pm"}`
-  );
   const [events, setEvents] = useState<any[]>([
     {
       id: "0",
@@ -49,8 +45,14 @@ const Timesheet = ({
       start: 0,
       end: 1,
       name: "Save the world",
+      description: "Tonight",
     },
   ]);
+
+  const hours = Array.from(
+    { length: 24 },
+    (_, i) => `${i % 12}:00 ${i < 12 ? "am" : "pm"}`
+  );
 
   const handleMouseDown = (hourIndex: number) => {
     setIsDragging(true);
@@ -98,7 +100,6 @@ const Timesheet = ({
             draggable: true,
             progress: undefined,
             theme: "dark",
-            transition: Bounce,
           });
           return;
         }
@@ -118,7 +119,6 @@ const Timesheet = ({
           draggable: true,
           progress: undefined,
           theme: "dark",
-          transition: Bounce,
         });
       });
     }
@@ -145,7 +145,6 @@ const Timesheet = ({
             draggable: true,
             progress: undefined,
             theme: "dark",
-            transition: Bounce,
           });
           return;
         }
@@ -161,7 +160,6 @@ const Timesheet = ({
           draggable: true,
           progress: undefined,
           theme: "dark",
-          transition: Bounce,
         });
       });
     }
@@ -190,65 +188,82 @@ const Timesheet = ({
         const isWithinEvent = events.some(
           (event) => event.start < index && event.end >= index
         );
+        const currentTime = new Date().getHours();
+        const minutes = new Date().getMinutes();
+        const topPercentage = (minutes / 60) * 100;
 
         return (
           !isWithinEvent && (
-            <div
-              key={index}
-              className={`${
-                eventStart ? styles.hourBlock : styles.hour
-              } relative flex gap-2 border-t-2 px-2 py-4 rounded-xs ${
-                eventStart ? `h-40 bg-green-500` : "h-16"
-              } flex-col ${
-                isDragging &&
-                startHour !== null &&
-                endHour !== null &&
-                index >= startHour &&
-                index <= endHour
-                  ? "bg-green-400 bg-opacity-30 text-white rounded-sm"
-                  : ""
-              } `}
-              onClick={
-                !eventStart
-                  ? () => {
-                      setStartHour(index);
-                      setEndHour(index);
-                      setOpen(true);
-                    }
-                  : () => {
-                      setIsDrawerOpen(true);
-                      setDrawerEvent(eventStart);
-                    }
-              }
-              onMouseDown={eventStart ? () => {} : () => handleMouseDown(index)}
-              onMouseEnter={
-                eventStart
-                  ? () => setEndHour(null)
-                  : () => handleMouseEnter(index)
-              }
-              onMouseUp={handleMouseUp}
-              style={{
-                animationDelay: `${index * 32}ms`,
-              }}
-            >
+            <div className="relative flex w-full">
+              {currentTime === index && (
+                <div
+                  className={`absolute left-0 w-full h-16 bg-violet-500 radius-4`}
+                  style={{
+                    top: `${topPercentage}%`,
+                    clipPath: `polygon(100% 10%,100% 0%,0% 0%,0% 30%,4% 10%)`,
+                    transition: "all .5s ease",
+                  }}
+                />
+              )}
               <div
-                className={`select-none ${
-                  eventStart
-                    ? "text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm w-fit"
+                key={index}
+                className={`${
+                  eventStart ? styles.hourBlock : styles.hour
+                } relative flex gap-2 border-t-2 px-2 py-4 rounded-xs ${
+                  eventStart ? `h-40 bg-green-500` : "h-16"
+                } flex-col ${
+                  isDragging &&
+                  startHour !== null &&
+                  endHour !== null &&
+                  index >= startHour &&
+                  index <= endHour
+                    ? "bg-green-400 bg-opacity-30 text-white rounded-sm"
                     : ""
                 }`}
+                onClick={
+                  !eventStart
+                    ? () => {
+                        setStartHour(index);
+                        setEndHour(index);
+                        setOpen(true);
+                      }
+                    : () => {
+                        setIsDrawerOpen(true);
+                        setDrawerEvent(eventStart);
+                      }
+                }
+                onMouseDown={
+                  eventStart ? () => {} : () => handleMouseDown(index)
+                }
+                onMouseEnter={
+                  eventStart
+                    ? () => setEndHour(null)
+                    : () => handleMouseEnter(index)
+                }
+                onMouseUp={handleMouseUp}
+                style={{
+                  animationDelay: `${index * 32}ms`,
+                }}
               >
-                {eventStart
-                  ? `${hours[eventStart.start]} - ${hours[
-                      eventStart.end
-                    ].replace(":00", ":59")}`
-                  : hours[index]}
-              </div>
-              {eventStart && (
-                <div className="rounded-sm font-bold text-xl text-black bg-black text-white bg-opacity-50 p-2 h-full">
-                  {eventStart.name}
+                <div
+                  className={`select-none ${
+                    eventStart
+                      ? "text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm w-fit"
+                      : ""
+                  }`}
+                >
+                  {eventStart
+                    ? `${hours[eventStart.start]} - ${hours[
+                        eventStart.end
+                      ].replace(":00", ":59")}`
+                    : hours[index]}
                 </div>
-              )}
+                {eventStart && (
+                  <div className="rounded-sm font-bold text-xl text-black bg-black text-white bg-opacity-50 p-2 h-full">
+                    {eventStart.name}
+                  </div>
+                )}
+              </div>
             </div>
           )
         );
@@ -321,7 +336,7 @@ const Timesheet = ({
                   </DrawerDescription>
                 )}
                 {drawerEvent && (
-                  <div className="flex gap-0.5">
+                  <div className="flex gap-0.5 w-100 justify-center">
                     <Badge className="text-sm font-bold bg-black text-white border-solid border-2 border-white hover:bg-white hover:text-black">{`${
                       drawerEvent?.start % 12
                     }:00 ${drawerEvent?.start < 12 ? "am" : "pm"}`}</Badge>

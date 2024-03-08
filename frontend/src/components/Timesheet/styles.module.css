@@ -9,6 +9,7 @@
   cursor: pointer;
   animation: appear 0.5s ease forwards;
   border-radius: 0.25rem;
+  width: 100%;
 }
 
 .hour {
@@ -16,6 +17,7 @@
   cursor: pointer;
   transition: all 0.5s ease;
   animation: fadein 0.5s ease forwards;
+  width: 100%;
 }
 
 .hour:hover {

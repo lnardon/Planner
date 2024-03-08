@@ -18,17 +18,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { v4 as uuidv4 } from "uuid";
-import { Bounce, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const TodoList = ({
   currentDate,
   setOpen,
 }: {
-  currentDate: Date | undefined;
+  currentDate: Date;
   setOpen: any;
 }) => {
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [date, setDate] = useState<Date | undefined>(currentDate);
+  const [tasks, setTasks] = useState([
+    {
+      id: uuidv4(),
+      name: "New task",
+      date: new Date(new Date().toLocaleDateString())
+        .toISOString()
+        .split("T")[0],
+      completed: false,
+    },
+  ]);
+  const [date, setDate] = useState<Date>(currentDate);
   const [taskName, setTaskName] = useState<string>("");
 
   async function handleCreateTask() {
@@ -57,7 +66,6 @@ const TodoList = ({
           draggable: true,
           progress: undefined,
           theme: "dark",
-          transition: Bounce,
         });
         return;
       }
@@ -74,7 +82,6 @@ const TodoList = ({
         draggable: true,
         progress: undefined,
         theme: "dark",
-        transition: Bounce,
       });
     }
   }
@@ -101,7 +108,6 @@ const TodoList = ({
         draggable: true,
         progress: undefined,
         theme: "dark",
-        transition: Bounce,
       });
       return;
     }
@@ -119,7 +125,6 @@ const TodoList = ({
               draggable: true,
               progress: undefined,
               theme: "dark",
-              transition: Bounce,
             });
           }
           return { ...t, completed: !t.completed };
@@ -150,7 +155,6 @@ const TodoList = ({
         draggable: true,
         progress: undefined,
         theme: "dark",
-        transition: Bounce,
       });
       return;
     }
@@ -165,7 +169,6 @@ const TodoList = ({
       draggable: true,
       progress: undefined,
       theme: "dark",
-      transition: Bounce,
     });
   }
 
@@ -180,10 +183,6 @@ const TodoList = ({
       }
     );
   }, [date]);
-
-  useEffect(() => {
-    setDate(currentDate);
-  }, [currentDate]);
 
   return (
     <div className="list">
@@ -211,7 +210,11 @@ const TodoList = ({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
-            <Calendar mode="single" selected={date} onSelect={setDate} />
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(selectedDate) => selectedDate && setDate(selectedDate)}
+            />
           </PopoverContent>
         </Popover>
 
@@ -234,9 +237,12 @@ const TodoList = ({
             onClick={() => handleUpdateTask(task)}
             id={task.id}
             name={`task${task.id}}`}
-            className="w-6 h-6 mr-2"
+            className="w-6 h-6 mr-4"
           />
-          <Label htmlFor={`task${task.id}}`} className="text-xl font-regular">
+          <Label
+            htmlFor={`task${task.id}}`}
+            className="text-xl font-regular w-full mr-8"
+          >
             {task.name}
           </Label>
           <button
