@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const Login = ({
   setIsLoggedIn,
@@ -16,12 +17,14 @@ const Login = ({
       },
       body: JSON.stringify({ username, password }),
     }).then((res) => {
-      if (res.status === 200) {
-        localStorage.setItem("token", "token");
-        setIsLoggedIn(true);
-      } else {
-        alert("Invalid credentials");
-      }
+      res.json().then((data) => {
+        if (res.status === 200) {
+          localStorage.setItem("token", data);
+          setIsLoggedIn(true);
+        } else {
+          toast.warn("Invalid credentials");
+        }
+      });
     });
   }
 

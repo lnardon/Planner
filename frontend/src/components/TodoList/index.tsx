@@ -52,6 +52,7 @@ const TodoList = ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(newTask),
       });
@@ -91,6 +92,7 @@ const TodoList = ({
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `${localStorage.getItem("token")}`,
       },
       body: JSON.stringify({
         id: task.id,
@@ -139,6 +141,7 @@ const TodoList = ({
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `${localStorage.getItem("token")}`,
       },
       body: JSON.stringify({
         id: taskId,
@@ -173,15 +176,18 @@ const TodoList = ({
   }
 
   useEffect(() => {
-    fetch(`/getTasks?date=${date?.toISOString().split("T")[0]}`, {}).then(
-      (res) => {
-        if (res.ok) {
-          res.json().then((data) => {
-            setTasks(data || []);
-          });
-        }
+    fetch(`/getTasks?date=${date?.toISOString().split("T")[0]}`, {
+      method: "GET",
+      headers: {
+        Authorization: `${localStorage.getItem("token")}`,
+      },
+    }).then((res) => {
+      if (res.ok) {
+        res.json().then((data) => {
+          setTasks(data || []);
+        });
       }
-    );
+    });
   }, [date]);
 
   return (

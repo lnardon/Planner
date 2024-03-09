@@ -42,8 +42,8 @@ const Timesheet = ({
     {
       id: "0",
       date: date?.toISOString().split("T")[0],
-      start: 0,
-      end: 1,
+      start: 1,
+      end: 2,
       name: "Save the world",
       description: "Tonight",
     },
@@ -87,6 +87,7 @@ const Timesheet = ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(newEvent),
       }).then((res) => {
@@ -130,6 +131,7 @@ const Timesheet = ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           id: drawerEvent.id,
@@ -166,15 +168,18 @@ const Timesheet = ({
   }
 
   useEffect(() => {
-    fetch(`/getEvents?date=${date?.toISOString().split("T")[0]}`).then(
-      (res) => {
-        if (res.ok) {
-          res.json().then((data) => {
-            setEvents(data || []);
-          });
-        }
+    fetch(`/getEvents?date=${date?.toISOString().split("T")[0]}`, {
+      method: "GET",
+      headers: {
+        Authorization: `${localStorage.getItem("token")}`,
+      },
+    }).then((res) => {
+      if (res.ok) {
+        res.json().then((data) => {
+          setEvents(data || []);
+        });
       }
-    );
+    });
   }, [date]);
 
   useEffect(() => {
@@ -197,11 +202,12 @@ const Timesheet = ({
             <div className="relative flex w-full">
               {currentTime === index && (
                 <div
-                  className={`absolute left-0 w-full h-16 bg-violet-500 radius-4`}
+                  className={`absolute left-0 w-full h-16 bg-violet-500 rounded-lg`}
                   style={{
                     top: `${topPercentage}%`,
-                    clipPath: `polygon(100% 10%,100% 0%,0% 0%,0% 30%,4% 10%)`,
+                    clipPath: `polygon(100% 5%,100% 0%,0% 0%,0% 15%,4% 10%)`,
                     transition: "all .5s ease",
+                    zIndex: 9,
                   }}
                 />
               )}
@@ -259,7 +265,7 @@ const Timesheet = ({
                     : hours[index]}
                 </div>
                 {eventStart && (
-                  <div className="rounded-sm font-bold text-xl text-black bg-black text-white bg-opacity-50 p-2 h-full">
+                  <div className="rounded-sm font-bold text-xl bg-black text-white bg-opacity-50 p-2 h-full">
                     {eventStart.name}
                   </div>
                 )}

@@ -4,7 +4,7 @@ import Login from "./views/Login";
 import Dashboard from "./views/Dashboard";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   return (
     <div className="app">
