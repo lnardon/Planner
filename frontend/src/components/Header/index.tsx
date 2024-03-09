@@ -33,7 +33,9 @@ const Header: React.FC = () => {
         styles.container
       )}
     >
-      <AnimatedText text="Planner" />
+      <div className="text-3xl">
+        <AnimatedText text="Planner" />
+      </div>
       <DropdownMenu>
         <DropdownMenuTrigger>Menu</DropdownMenuTrigger>
         <DropdownMenuContent>

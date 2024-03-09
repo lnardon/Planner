@@ -52,18 +52,25 @@ const Dashboard: React.FC = () => {
                   </SelectItem>
                 </SelectContent>
               </Select>
-
-              <DialogTrigger className="w-full">
+            </div>
+          </div>
+          <div className="content">
+            <div className="flex justify-between">
+              <div className="text-4xl">
+                <AnimatedText
+                  text={currentDate
+                    ?.toDateString()
+                    .split(" ")
+                    .slice(1)
+                    .join(" ")}
+                />
+              </div>
+              <DialogTrigger className="w-24">
                 <Button className="font-bold w-full">
                   Create <Plus className="ml-1 h-4 w-4" />
                 </Button>
               </DialogTrigger>
             </div>
-          </div>
-          <div className="content">
-            <AnimatedText
-              text={currentDate?.toDateString().split(" ").slice(1).join(" ")}
-            />
             {currentView === "timesheet" ? (
               <Timesheet currentDate={currentDate} setOpen={setOpen} />
             ) : (
