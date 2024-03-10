@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
                     .join(" ")}
                 />
               </div>
-              <DialogTrigger className="w-24">
+              <DialogTrigger className="w-24 animate-fade-in overflow-hidden">
                 <Button className="font-bold w-full">
                   Create <Plus className="ml-1 h-4 w-4" />
                 </Button>
