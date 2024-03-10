@@ -55,7 +55,7 @@ body::-webkit-scrollbar {
   flex-direction: column;
   flex: 4;
   gap: 1rem;
-  border: 2px solid hsl(var(--border));
+  border: 2px solid #fafafa98;
   padding: 1rem;
   border-radius: 0.5rem;
   min-height: 35rem;

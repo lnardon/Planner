@@ -3,11 +3,11 @@ import AnimatedText from "../AnimatedText";
 import styles from "./styles.module.css";
 import {
   DropdownMenu,
+  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   Sheet,
@@ -19,7 +19,8 @@ import {
 import { useState } from "react";
 
 const Header: React.FC = () => {
-  const [open, setOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -29,7 +30,7 @@ const Header: React.FC = () => {
   return (
     <div
       className={cn(
-        "w-full rounded-md p-4 border-2 flex justify-between items-center",
+        "w-full rounded-md p-4 flex justify-between items-center",
         styles.container
       )}
     >
@@ -37,18 +38,40 @@ const Header: React.FC = () => {
         <AnimatedText text="Planner" />
       </div>
       <DropdownMenu>
-        <DropdownMenuTrigger>Menu</DropdownMenuTrigger>
+        <DropdownMenuTrigger>
+          <div className="py-1 px-4 rounded-lg flex gap-1 items-center cursor-pointer border-2 border-white border-opacity-60 focus-visible:ring-0 hover:border-opacity-100 transition-all duration-200">
+            Menu
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ffffff"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </div>
+        </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuLabel>Account menu</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setOpen(true)}>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => setIsSettingsOpen(true)}
+          >
             Settings
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
+            Logout
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <SheetContent>
           <SheetHeader>
             <SheetTitle className="text-3xl">Settings</SheetTitle>

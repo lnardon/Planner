@@ -33,9 +33,9 @@ const Dashboard: React.FC = () => {
               mode="single"
               selected={currentDate}
               onSelect={(val) => setCurrentDate(val || new Date())}
-              className="rounded-md border"
+              className="rounded-md border-2 border-white border-opacity-60"
             />
-            <div className="w-full flex gap-4 flex-col">
+            <div className="w-full flex gap-4 flex-col border-2 rounded-md border-white border-opacity-60">
               <Select
                 onValueChange={(val) => setCurrentView(val)}
                 defaultValue={currentView}
