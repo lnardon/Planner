@@ -20,7 +20,7 @@ import { useState } from "react";
 
 const Header: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -30,11 +30,12 @@ const Header: React.FC = () => {
   return (
     <div
       className={cn(
-        "w-full rounded-md p-4 flex justify-between items-center",
+        "w-full rounded-md py-4 flex justify-between items-center",
         styles.container
       )}
     >
-      <div className="text-3xl">
+      <div className="text-4xl flex gap-4 items-center">
+        <img src="/calendar.png" alt="Logo" className="w-10" />
         <AnimatedText text="Planner" />
       </div>
       <DropdownMenu>
