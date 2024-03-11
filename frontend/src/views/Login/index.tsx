@@ -1,5 +1,5 @@
 import AnimatedText from "@/components/AnimatedText";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const Login = ({
@@ -7,6 +7,7 @@ const Login = ({
 }: {
   setIsLoggedIn: (val: boolean) => void;
 }) => {
+  const [hasUserRegistered, setHasUserRegistered] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -19,7 +20,7 @@ const Login = ({
       body: JSON.stringify({ username, password }),
     }).then((res) => {
       if (res.status != 200) {
-        toast.warn("Error logging in. Please try again.");
+        toast.error("Error logging in. Please try again.");
       }
       res.json().then((data) => {
         localStorage.setItem("token", data);
@@ -27,6 +28,43 @@ const Login = ({
       });
     });
   }
+
+  function checkUser() {
+    fetch("/hasUserRegistered", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((res) => {
+      if (res.status != 200) {
+        toast.warn("Error checking if user has registered.");
+      }
+      res.json().then((data) => {
+        setHasUserRegistered(data);
+      });
+    });
+  }
+
+  function createAccount() {
+    toast.info("Creating account...");
+    fetch("/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    }).then((res) => {
+      if (res.status != 200) {
+        toast.warn("Error creating account. Please try again.");
+      }
+      toast.success("Account created successfully. Please login and enjoy!");
+      setHasUserRegistered(true);
+    });
+  }
+
+  useEffect(() => {
+    checkUser();
+  }, []);
 
   return (
     <div className="flex justify-center items-center w-full flex-1">
@@ -50,10 +88,10 @@ const Login = ({
           className="rounded-md border p-2 mb-8 w-full text-lg font-medium"
         />
         <button
-          onClick={handleLogin}
+          onClick={hasUserRegistered ? handleLogin : createAccount}
           className="bg-indigo-600 text-white rounded-md p-2 mt-4 w-full text-center cursor-pointer font-bold text-lg"
         >
-          Login
+          {hasUserRegistered ? "Login" : "Create account"}
         </button>
       </div>
     </div>

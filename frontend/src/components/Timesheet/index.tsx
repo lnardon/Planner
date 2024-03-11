@@ -21,6 +21,14 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { toast } from "react-toastify";
 
 const Timesheet = ({
@@ -32,8 +40,8 @@ const Timesheet = ({
 }) => {
   const [date, setDate] = useState<Date | undefined>(currentDate);
   const [isDragging, setIsDragging] = useState(false);
-  const [startHour, setStartHour] = useState<number | null>(null);
-  const [endHour, setEndHour] = useState<number | null>(null);
+  const [startHour, setStartHour] = useState<number>(0);
+  const [endHour, setEndHour] = useState<number | null>(startHour + 1);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
@@ -106,7 +114,7 @@ const Timesheet = ({
         }
 
         setOpen(false);
-        setStartHour(null);
+        setStartHour(0);
         setEndHour(null);
         setDescription("");
         setName("");
@@ -186,6 +194,10 @@ const Timesheet = ({
     setDate(currentDate);
   }, [currentDate]);
 
+  useEffect(() => {
+    setEndHour(startHour + 1);
+  }, [startHour]);
+
   return (
     <div className={styles.timesheet}>
       {hours.map((_, index) => {
@@ -195,17 +207,16 @@ const Timesheet = ({
         );
         const currentTime = new Date().getHours();
         const minutes = new Date().getMinutes();
-        const topPercentage = (minutes / 60) * 100;
+        const topPercentage = isWithinEvent ? 0 : (minutes / 60) * 100;
 
         return (
           !isWithinEvent && (
             <div className="relative flex w-full">
               {currentTime === index && (
                 <div
-                  className={`absolute left-0 w-full h-16 bg-violet-500 rounded-lg`}
+                  className={`absolute left-0 w-full h-1 bg-indigo-600 rounded shadow-md`}
                   style={{
                     top: `${topPercentage}%`,
-                    clipPath: `polygon(100% 5%,100% 0%,0% 0%,0% 15%,4% 10%)`,
                     transition: "all .5s ease",
                     zIndex: 9,
                   }}
@@ -254,7 +265,7 @@ const Timesheet = ({
                 <div
                   className={`select-none ${
                     eventStart
-                      ? "text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm w-fit"
+                      ? "text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm w-fit z-10"
                       : ""
                   }`}
                 >
@@ -282,18 +293,48 @@ const Timesheet = ({
           </DialogTitle>
         </DialogHeader>
         <Separator className="mb-0" />
-
-        {startHour !== null && endHour !== null && (
-          <div className="flex gap-0.5">
-            <Badge className="text-sm font-bold bg-green-400">{`${
-              startHour % 12
-            }:00 ${startHour < 12 ? "am" : "pm"}`}</Badge>
-            <ChevronRight />
-            <Badge className="text-sm font-bold bg-green-400">{`${
-              endHour % 12
-            }:59 ${endHour < 12 ? "am" : "pm"}`}</Badge>
+        {
+          <div className="flex w-full items-center justify-between gap-8">
+            <Select
+              value={startHour?.toString() || "0"}
+              onValueChange={(val) => setStartHour(parseInt(val))}
+            >
+              <SelectTrigger className="w-full font-bold text-md outline-none">
+                <SelectValue placeholder="Starts at" />
+              </SelectTrigger>
+              <SelectContent>
+                {hours.map((hour, index) => (
+                  <SelectItem
+                    value={index.toString()}
+                    onClick={() => setStartHour(index)}
+                  >
+                    {hour}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            to
+            <Select
+              value={endHour?.toString() || "0"}
+              onValueChange={(val) => setEndHour(parseInt(val))}
+            >
+              <SelectTrigger className="w-fullfont-bold text-md outline-none">
+                <SelectValue placeholder="Ends at" />
+              </SelectTrigger>
+              <SelectContent>
+                {hours.map((hour, index) => (
+                  <SelectItem
+                    value={index.toString()}
+                    onClick={() => setEndHour(index)}
+                    disabled={index < startHour!}
+                  >
+                    {hour.replace(":00", ":59")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        )}
+        }
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -332,17 +373,17 @@ const Timesheet = ({
           <div className="min-w-96 max-w-[35rem] w-full m-4 p-6 bg-green-500 rounded-md">
             <div className="p-2 bg-black bg-opacity-80 rounded-md">
               <DrawerHeader>
-                <DrawerTitle className="mb-0 text-2xl">
+                <DrawerTitle className="mb-0 text-2xl flex flex-wrap break-all">
                   {drawerEvent?.name}
                 </DrawerTitle>
                 <Separator className="mb-2 bg-white" />
                 {drawerEvent?.description && (
-                  <DrawerDescription className="mb-4">
+                  <DrawerDescription className="mb-4  flex flex-wrap break-all">
                     {drawerEvent?.description}
                   </DrawerDescription>
                 )}
                 {drawerEvent && (
-                  <div className="flex gap-0.5 w-100 justify-center">
+                  <div className="flex gap-0.5 w-100 md:justify-start sm:justify-center">
                     <Badge className="text-sm font-bold bg-black text-white border-solid border-2 border-white hover:bg-white hover:text-black">{`${
                       drawerEvent?.start % 12
                     }:00 ${drawerEvent?.start < 12 ? "am" : "pm"}`}</Badge>

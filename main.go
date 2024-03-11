@@ -11,6 +11,7 @@ func main () {
     http.Handle("/", http.FileServer(http.Dir("./frontend/dist")))
     http.HandleFunc("/login", handleLogin)
     http.HandleFunc("/register", handleRegister)
+    http.HandleFunc("/hasUserRegistered", handleHasUserRegistered)
 
     http.HandleFunc("/getTasks", verifyJWT(handleGetTasksByDate))
     http.HandleFunc("/createTask", verifyJWT(handleCreateTask))

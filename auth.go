@@ -109,7 +109,6 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//generate a random id for the user with uuid
 	id := uuid.New().String()
 	_, err = statement.Exec(id, register.Username, string(hashedPassword))
 	if err != nil {
@@ -144,4 +143,29 @@ func verifyJWT(endpointHandler http.HandlerFunc) http.HandlerFunc {
             http.Error(w, "Unauthorized: No Token in Request", http.StatusUnauthorized)
         }
     }
+}
+
+func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("sqlite3", "./database.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if count == 0 {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(false)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(true)
+	}
+
+
 }
