@@ -190,6 +190,10 @@ const TodoList = ({
     });
   }, [date]);
 
+  useEffect(() => {
+    setDate(currentDate);
+  }, [currentDate]);
+
   return (
     <div className="list">
       <DialogContent>

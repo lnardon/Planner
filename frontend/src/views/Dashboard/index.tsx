@@ -32,7 +32,9 @@ const Dashboard: React.FC = () => {
             <Calendar
               mode="single"
               selected={currentDate}
-              onSelect={(val) => setCurrentDate(val || new Date())}
+              onSelect={(val) =>
+                setCurrentDate(new Date(new Date(val!).toLocaleDateString()))
+              }
               className="rounded-md border-2 border-white border-opacity-60"
             />
             <div className="w-full flex gap-4 flex-col border-2 rounded-md border-white border-opacity-60">
