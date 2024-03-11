@@ -20,7 +20,6 @@ import { useState } from "react";
 
 const Header: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  // const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   function handleLogout() {
     localStorage.removeItem("token");
