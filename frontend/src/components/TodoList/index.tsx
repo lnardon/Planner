@@ -58,32 +58,14 @@ const TodoList = ({
       });
 
       if (!res.ok) {
-        toast.error("Error creating task", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        });
+        toast.error("Error creating task");
         return;
       }
 
       setTasks([...tasks, newTask]);
       setTaskName("");
       setOpen(false);
-      toast.success("Task created successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      toast.success("Task created successfully!");
     }
   }
 
@@ -101,16 +83,7 @@ const TodoList = ({
     });
 
     if (!res.ok) {
-      toast.error("Error updating task", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      toast.error("Error updating task");
       return;
     }
 
@@ -118,16 +91,7 @@ const TodoList = ({
       tasks.map((t) => {
         if (t.id === task.id) {
           if (!t.completed) {
-            toast.info("Task completed!", {
-              position: "top-right",
-              autoClose: 3000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "dark",
-            });
+            toast.info("Task completed!");
           }
           return { ...t, completed: !t.completed };
         }
@@ -149,30 +113,12 @@ const TodoList = ({
     });
 
     if (!res.ok) {
-      toast.error("Error deteting task", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      toast.error("Error deteting task");
       return;
     }
 
     setTasks(tasks.filter((task) => task.id !== taskId));
-    toast.success("Task deleted successfully!", {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    });
+    toast.success("Task deleted successfully!");
   }
 
   useEffect(() => {

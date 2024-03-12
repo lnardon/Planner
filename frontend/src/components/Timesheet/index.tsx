@@ -100,16 +100,7 @@ const Timesheet = ({
         body: JSON.stringify(newEvent),
       }).then((res) => {
         if (!res.ok) {
-          toast.error("Error creating event", {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-          });
+          toast.error("Error creating event");
           return;
         }
 
@@ -119,16 +110,7 @@ const Timesheet = ({
         setDescription("");
         setName("");
         setEvents([...events, newEvent]);
-        toast.success("Event created successfully!", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        });
+        toast.success("Event created successfully!");
       });
     }
   }
@@ -146,31 +128,13 @@ const Timesheet = ({
         }),
       }).then((res) => {
         if (!res.ok) {
-          toast.error("Error deleting event", {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-          });
+          toast.error("Error deleting event");
           return;
         }
 
         setIsDrawerOpen(false);
         setEvents(events.filter((event) => event.id !== drawerEvent.id));
-        toast.success("Event deleted successfully!", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        });
+        toast.success("Event deleted successfully!");
       });
     }
   }

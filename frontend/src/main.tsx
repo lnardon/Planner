@@ -8,6 +8,13 @@ import "react-toastify/dist/ReactToastify.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
-    <ToastContainer transition={Slide} />
+    <ToastContainer
+      transition={Slide}
+      stacked
+      theme="dark"
+      closeOnClick
+      position="top-right"
+      draggable
+    />
   </React.StrictMode>
 );
