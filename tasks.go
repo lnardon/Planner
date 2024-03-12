@@ -28,7 +28,7 @@ func handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", "./db/database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func handleGetTasksByDate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", "./db/database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,7 +100,7 @@ func handleUpdateTaskStatus(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", "./db/database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func handleDeleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", "./db/database.db")
 	if err != nil {
 		log.Fatal(err)
 	}

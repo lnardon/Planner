@@ -24,7 +24,7 @@ func handleGetEventsByDate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", "./db/database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", "./db/database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -97,7 +97,7 @@ func handleDeleteEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", "./db/database.db")
 	if err != nil {
 		log.Fatal(err)
 	}

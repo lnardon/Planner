@@ -35,7 +35,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", "./db/database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -91,7 +91,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", "./db/database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -146,7 +146,7 @@ func verifyJWT(endpointHandler http.HandlerFunc) http.HandlerFunc {
 }
 
 func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", "./db/database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
