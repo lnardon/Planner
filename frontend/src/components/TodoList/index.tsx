@@ -148,16 +148,12 @@ const TodoList = ({
             Create a task
           </DialogTitle>
         </DialogHeader>
-        <Input
-          placeholder="Task name"
-          onChange={(e) => setTaskName(e.target.value)}
-        />
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant={"outline"}
               className={cn(
-                "w-full justify-start text-left font-normal mb-4",
+                "w-full justify-start text-left font-normal",
                 !date && "text-muted-foreground"
               )}
             >
@@ -173,6 +169,11 @@ const TodoList = ({
             />
           </PopoverContent>
         </Popover>
+        <Input
+          placeholder="Task name"
+          onChange={(e) => setTaskName(e.target.value)}
+          className="mb-4 w-full"
+        />
 
         <Button className="font-bold w-full" onClick={handleCreateTask}>
           Done

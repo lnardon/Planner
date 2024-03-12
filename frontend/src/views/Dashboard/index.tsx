@@ -33,7 +33,7 @@ const Dashboard: React.FC = () => {
               mode="single"
               selected={currentDate}
               onSelect={(val) =>
-                setCurrentDate(new Date(new Date(val!).toLocaleDateString()))
+                setCurrentDate(new Date(val || new Date().toLocaleDateString()))
               }
               className="rounded-md border-2 border-white border-opacity-60"
             />

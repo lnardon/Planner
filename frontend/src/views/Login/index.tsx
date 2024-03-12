@@ -12,6 +12,7 @@ const Login = ({
   const [password, setPassword] = useState<string>("");
 
   function handleLogin() {
+    toast.info("Logging in...");
     fetch("/login", {
       method: "POST",
       headers: {

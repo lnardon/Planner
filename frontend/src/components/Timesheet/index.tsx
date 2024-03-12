@@ -190,11 +190,9 @@ const Timesheet = ({
             <div className="relative flex w-full">
               {currentTime === index && isToday && (
                 <div
-                  className={`absolute left-0 w-full h-1 bg-indigo-600 rounded shadow-md`}
+                  className="absolute left-0 w-full h-1 bg-indigo-600 rounded shadow-md animate-pulse z-10"
                   style={{
                     top: `${topPercentage}%`,
-                    transition: "all .5s ease",
-                    zIndex: 9,
                   }}
                 />
               )}
@@ -269,13 +267,30 @@ const Timesheet = ({
           </DialogTitle>
         </DialogHeader>
         <Separator className="mb-0" />
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-full justify-start text-left font-normal",
+                !date && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date ? format(date, "PPP") : <span>Pick a date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar mode="single" selected={date} onSelect={setDate} />
+          </PopoverContent>
+        </Popover>
         {
           <div className="flex w-full items-center justify-between gap-8">
             <Select
               value={startHour?.toString() || "0"}
               onValueChange={(val) => setStartHour(parseInt(val))}
             >
-              <SelectTrigger className="w-full font-bold text-md outline-none">
+              <SelectTrigger className="w-full text-md outline-none">
                 <SelectValue placeholder="Starts at" />
               </SelectTrigger>
               <SelectContent>
@@ -294,7 +309,7 @@ const Timesheet = ({
               value={endHour?.toString() || "0"}
               onValueChange={(val) => setEndHour(parseInt(val))}
             >
-              <SelectTrigger className="w-fullfont-bold text-md outline-none">
+              <SelectTrigger className="w-full text-md outline-none">
                 <SelectValue placeholder="Ends at" />
               </SelectTrigger>
               <SelectContent>
@@ -311,30 +326,13 @@ const Timesheet = ({
             </Select>
           </div>
         }
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar mode="single" selected={date} onSelect={setDate} />
-          </PopoverContent>
-        </Popover>
         <Input
           placeholder="Event name"
           onChange={(e) => setName(e.target.value)}
         />
         <Textarea
           placeholder="Event description..."
-          className="w-full h-32 mb-4"
+          className="w-full h-32 mb-8"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
