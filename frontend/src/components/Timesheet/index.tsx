@@ -169,9 +169,13 @@ const Timesheet = ({
         const isWithinEvent = events.some(
           (event) => event.start < index && event.end >= index
         );
+        const eventDuration =
+          !isWithinEvent && eventStart
+            ? eventStart.end + 1 - eventStart.start
+            : 1;
         const currentTime = new Date().getHours();
         const minutes = new Date().getMinutes();
-        const topPercentage = isWithinEvent ? 0 : (minutes / 60) * 100;
+        const topPercentage = (minutes / (60 * eventDuration)) * 100;
 
         const isToday =
           currentDate?.getUTCDate() +
