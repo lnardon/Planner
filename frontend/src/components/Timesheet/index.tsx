@@ -209,10 +209,22 @@ const Timesheet = ({
         const minutes = new Date().getMinutes();
         const topPercentage = isWithinEvent ? 0 : (minutes / 60) * 100;
 
+        const isToday =
+          currentDate?.getUTCDate() +
+            " " +
+            currentDate?.getUTCMonth() +
+            " " +
+            currentDate?.getUTCFullYear() ===
+          new Date().getUTCDate() +
+            " " +
+            new Date().getUTCMonth() +
+            " " +
+            new Date().getUTCFullYear();
+
         return (
           !isWithinEvent && (
             <div className="relative flex w-full">
-              {currentTime === index && (
+              {currentTime === index && isToday && (
                 <div
                   className={`absolute left-0 w-full h-1 bg-indigo-600 rounded shadow-md`}
                   style={{
