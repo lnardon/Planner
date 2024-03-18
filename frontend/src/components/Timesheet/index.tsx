@@ -1,35 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
-import { DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
-import { Calendar } from "../ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Badge } from "../ui/badge";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon, ChevronRight, Check } from "lucide-react";
-import { Separator } from "../ui/separator";
-import { v4 as uuidv4 } from "uuid";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-import { toast } from "react-toastify";
+import EventDetail from "../EventDetail";
+import CreateEvent from "../CreateEvent";
 
 const Timesheet = ({
   currentDate,
@@ -42,8 +14,6 @@ const Timesheet = ({
   const [isDragging, setIsDragging] = useState(false);
   const [startHour, setStartHour] = useState<number>(0);
   const [endHour, setEndHour] = useState<number | null>(startHour + 1);
-  const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [drawerEvent, setDrawerEvent] = useState<any>(null);
   const [events, setEvents] = useState<any[]>([
@@ -81,64 +51,6 @@ const Timesheet = ({
     }
   };
 
-  function handleCreateEvent() {
-    if (startHour !== null && endHour !== null && name) {
-      let newEvent = {
-        id: uuidv4(),
-        date: date?.toISOString().split("T")[0],
-        start: startHour,
-        end: endHour,
-        name,
-        description: description,
-      };
-      fetch("/createEvent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(newEvent),
-      }).then((res) => {
-        if (!res.ok) {
-          toast.error("Error creating event");
-          return;
-        }
-
-        setOpen(false);
-        setStartHour(0);
-        setEndHour(null);
-        setDescription("");
-        setName("");
-        setEvents([...events, newEvent]);
-        toast.success("Event created successfully!");
-      });
-    }
-  }
-
-  function handleDeleteEvent() {
-    if (drawerEvent) {
-      fetch("/deleteEvent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          id: drawerEvent.id,
-        }),
-      }).then((res) => {
-        if (!res.ok) {
-          toast.error("Error deleting event");
-          return;
-        }
-
-        setIsDrawerOpen(false);
-        setEvents(events.filter((event) => event.id !== drawerEvent.id));
-        toast.success("Event deleted successfully!");
-      });
-    }
-  }
-
   useEffect(() => {
     fetch(`/getEvents?date=${date?.toISOString().split("T")[0]}`, {
       method: "GET",
@@ -162,233 +74,115 @@ const Timesheet = ({
     setEndHour(startHour + 1);
   }, [startHour]);
 
+  const currentTime = new Date().getHours();
+  const minutes = new Date().getMinutes();
+  const isToday = date && date.toDateString() === new Date().toDateString();
+
   return (
     <div className={styles.timesheet}>
       {hours.map((_, index) => {
         const eventStart = events.find((event) => event.start === index);
-        const isWithinEvent = events.some(
-          (event) => event.start < index && event.end >= index
+        const ongoingEvent = events.find(
+          (event) => event.start <= index && event.end > index
         );
-        const eventDuration =
-          !isWithinEvent && eventStart
-            ? eventStart.end + 1 - eventStart.start
-            : 1;
-        const currentTime = new Date().getHours();
-        const minutes = new Date().getMinutes();
-        const topPercentage = (minutes / (60 * eventDuration)) * 100;
+        const isCurrentHourWithinEvent =
+          ongoingEvent &&
+          currentTime >= ongoingEvent.start &&
+          currentTime < ongoingEvent.end &&
+          isToday;
 
-        const isToday =
-          currentDate?.getUTCDate() +
-            " " +
-            currentDate?.getUTCMonth() +
-            " " +
-            currentDate?.getUTCFullYear() ===
-          new Date().getUTCDate() +
-            " " +
-            new Date().getUTCMonth() +
-            " " +
-            new Date().getUTCFullYear();
+        const eventBlockHeight = isCurrentHourWithinEvent
+          ? 40 * (ongoingEvent.end - ongoingEvent.start)
+          : 0;
+        const minutesSinceEventStart = isCurrentHourWithinEvent
+          ? (currentTime - ongoingEvent.start) * 60 + minutes
+          : 0;
+        const eventDurationMinutes = isCurrentHourWithinEvent
+          ? (ongoingEvent.end - ongoingEvent.start) * 60
+          : 1;
+        const topOffsetPercentage =
+          (minutesSinceEventStart / eventDurationMinutes) * 100;
 
         return (
-          !isWithinEvent && (
-            <div className="relative flex w-full">
-              {currentTime === index && isToday && (
-                <div
-                  className="absolute left-0 w-full h-1 bg-indigo-600 rounded shadow-md animate-pulse z-10"
-                  style={{
-                    top: `${topPercentage}%`,
-                  }}
-                />
-              )}
+          <div key={index} className="relative flex w-full">
+            {isCurrentHourWithinEvent && (
               <div
-                key={index}
-                className={`${
-                  eventStart ? styles.hourBlock : styles.hour
-                } relative flex gap-2 border-t-2 px-2 py-4 rounded-xs ${
-                  eventStart ? `h-40 bg-green-500` : "h-16"
-                } flex-col ${
-                  isDragging &&
-                  startHour !== null &&
-                  endHour !== null &&
-                  index >= startHour &&
-                  index <= endHour
-                    ? "bg-green-400 bg-opacity-30 text-white rounded-sm"
+                className="absolute left-0 w-full h-1 bg-purple-500 rounded shadow-md z-10"
+                style={{
+                  top: `${(topOffsetPercentage * eventBlockHeight) / 100}px`,
+                }}
+              />
+            )}
+            <div
+              key={index}
+              className={`${
+                eventStart ? styles.hourBlock : styles.hour
+              } relative flex gap-2 border-t-2 px-2 py-4 rounded-xs ${
+                eventStart ? `h-40 bg-green-500` : "h-16"
+              } flex-col ${
+                isDragging &&
+                startHour !== null &&
+                endHour !== null &&
+                index >= startHour &&
+                index <= endHour
+                  ? "bg-green-400 bg-opacity-30 text-white rounded-sm"
+                  : ""
+              }`}
+              onClick={
+                !eventStart
+                  ? () => {
+                      setStartHour(index);
+                      setEndHour(index);
+                      setOpen(true);
+                    }
+                  : () => {
+                      setIsDrawerOpen(true);
+                      setDrawerEvent(eventStart);
+                    }
+              }
+              onMouseDown={eventStart ? () => {} : () => handleMouseDown(index)}
+              onMouseEnter={
+                eventStart
+                  ? () => setEndHour(null)
+                  : () => handleMouseEnter(index)
+              }
+              onMouseUp={handleMouseUp}
+            >
+              <div
+                className={`select-none ${
+                  eventStart
+                    ? "text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm w-fit z-10"
                     : ""
                 }`}
-                onClick={
-                  !eventStart
-                    ? () => {
-                        setStartHour(index);
-                        setEndHour(index);
-                        setOpen(true);
-                      }
-                    : () => {
-                        setIsDrawerOpen(true);
-                        setDrawerEvent(eventStart);
-                      }
-                }
-                onMouseDown={
-                  eventStart ? () => {} : () => handleMouseDown(index)
-                }
-                onMouseEnter={
-                  eventStart
-                    ? () => setEndHour(null)
-                    : () => handleMouseEnter(index)
-                }
-                onMouseUp={handleMouseUp}
-                style={{
-                  animationDelay: `${index * 32}ms`,
-                }}
               >
-                <div
-                  className={`select-none ${
-                    eventStart
-                      ? "text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm w-fit z-10"
-                      : ""
-                  }`}
-                >
-                  {eventStart
-                    ? `${hours[eventStart.start]} - ${hours[
-                        eventStart.end
-                      ].replace(":00", ":59")}`
-                    : hours[index]}
-                </div>
-                {eventStart && (
-                  <div className="rounded-sm font-bold text-xl bg-black text-white bg-opacity-50 p-2 h-full">
-                    {eventStart.name}
-                  </div>
-                )}
+                {eventStart
+                  ? `${hours[eventStart.start]} - ${hours[
+                      eventStart.end
+                    ].replace(":00", ":59")}`
+                  : hours[index]}
               </div>
+              {eventStart && (
+                <div className="rounded-sm font-bold text-xl bg-black text-white bg-opacity-50 p-2 h-full">
+                  {eventStart.name}
+                </div>
+              )}
             </div>
-          )
+          </div>
         );
       })}
-
-      <DialogContent>
-        <DialogHeader className="mb-0">
-          <DialogTitle className="text-bold text-2xl text-start">
-            Create event
-          </DialogTitle>
-        </DialogHeader>
-        <Separator className="mb-0" />
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar mode="single" selected={date} onSelect={setDate} />
-          </PopoverContent>
-        </Popover>
-        {
-          <div className="flex w-full items-center justify-between gap-8">
-            <Select
-              value={startHour?.toString() || "0"}
-              onValueChange={(val) => setStartHour(parseInt(val))}
-            >
-              <SelectTrigger className="w-full text-md outline-none">
-                <SelectValue placeholder="Starts at" />
-              </SelectTrigger>
-              <SelectContent>
-                {hours.map((hour, index) => (
-                  <SelectItem
-                    value={index.toString()}
-                    onClick={() => setStartHour(index)}
-                  >
-                    {hour}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            to
-            <Select
-              value={endHour?.toString() || "0"}
-              onValueChange={(val) => setEndHour(parseInt(val))}
-            >
-              <SelectTrigger className="w-full text-md outline-none">
-                <SelectValue placeholder="Ends at" />
-              </SelectTrigger>
-              <SelectContent>
-                {hours.map((hour, index) => (
-                  <SelectItem
-                    value={index.toString()}
-                    onClick={() => setEndHour(index)}
-                    disabled={index < startHour!}
-                  >
-                    {hour.replace(":00", ":59")}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        }
-        <Input
-          placeholder="Event name"
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Textarea
-          placeholder="Event description..."
-          className="w-full h-32 mb-8"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <Button className="font-bold w-full" onClick={handleCreateEvent}>
-          Done
-          <Check className="pl-2" />
-        </Button>
-      </DialogContent>
-
-      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent className="w-full flex items-center">
-          <div className="min-w-96 max-w-[35rem] w-full m-4 p-6 bg-green-500 rounded-md">
-            <div className="p-2 bg-black bg-opacity-80 rounded-md">
-              <DrawerHeader>
-                <DrawerTitle className="mb-0 text-2xl flex flex-wrap break-all">
-                  {drawerEvent?.name}
-                </DrawerTitle>
-                <Separator className="mb-2 bg-white" />
-                {drawerEvent?.description && (
-                  <DrawerDescription className="mb-4  flex flex-wrap break-all">
-                    {drawerEvent?.description}
-                  </DrawerDescription>
-                )}
-                {drawerEvent && (
-                  <div className="flex gap-0.5 w-100 md:justify-start sm:justify-center">
-                    <Badge className="text-sm font-bold bg-black text-white border-solid border-2 border-white hover:bg-white hover:text-black">{`${
-                      drawerEvent?.start % 12
-                    }:00 ${drawerEvent?.start < 12 ? "am" : "pm"}`}</Badge>
-                    <ChevronRight />
-                    <Badge className="text-sm font-bold bg-black text-white border-solid border-2 border-white hover:bg-white hover:text-black">{`${
-                      drawerEvent.end % 12
-                    }:59 ${drawerEvent?.end < 12 ? "am" : "pm"}`}</Badge>
-                  </div>
-                )}
-              </DrawerHeader>
-              <DrawerFooter>
-                <DrawerClose>
-                  <Button variant="outline" className="w-full hover:bg-black">
-                    Close
-                  </Button>
-                </DrawerClose>
-                <Button
-                  className="bg-red-600 font-bold text-white hover:bg-red-600"
-                  onClick={handleDeleteEvent}
-                >
-                  Delete
-                </Button>
-              </DrawerFooter>
-            </div>
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <CreateEvent
+        events={events}
+        hours={hours}
+        setEvents={setEvents}
+        setOpen={setOpen}
+      />
+      <EventDetail
+        drawerEvent={drawerEvent}
+        events={events}
+        isDrawerOpen={isDrawerOpen}
+        setEvents={setEvents}
+        setIsDrawerOpen={setIsDrawerOpen}
+      />
     </div>
   );
 };
