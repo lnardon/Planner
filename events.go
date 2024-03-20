@@ -3,8 +3,12 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type Event struct {
@@ -14,6 +18,7 @@ type Event struct {
 	Description string `json:"description"`
 	Start       int    `json:"start"`
 	End         int    `json:"end"`
+	Frequency   string `json:"frequency"`
 }
 
 func handleGetEventsByDate(w http.ResponseWriter, r *http.Request) {
@@ -72,18 +77,60 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	statement, err := db.Prepare("INSERT INTO events (id, name, description, date, start, end) VALUES (?, ?, ?, ?, ?, ?)")
+	baseDate, err := time.Parse("2006-01-02", newEvent.Date)
 	if err != nil {
-		log.Fatal(err)
-	}
-	defer statement.Close()
-
-	_, err = statement.Exec(newEvent.ID, newEvent.Name, newEvent.Description, newEvent.Date, newEvent.Start, newEvent.End)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Fatal("Error parsing base date:", err)
 	}
 
+	switch newEvent.Frequency {
+	case "once":
+		_, err := db.Exec("INSERT INTO events (id, name, description, date, start, end) VALUES (?, ?, ?, ?, ?, ?)", newEvent.ID, newEvent.Name, newEvent.Description, newEvent.Date, newEvent.Start, newEvent.End)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	case "daily":
+		for i := 0; i < 7; i++ {
+			eventDate := baseDate.AddDate(0, 0, i).Format("2006-01-02")
+			uuid, err := uuid.NewRandom()
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = db.Exec("INSERT INTO events (id, name, description, date, start, end) VALUES (?, ?, ?, ?, ?, ?)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+	case "weekly":
+		for i := 0; i < 4; i++ {
+			eventDate := baseDate.AddDate(0, 0, i*7).Format("2006-01-02")
+			uuid, err := uuid.NewRandom()
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = db.Exec("INSERT INTO events (id, name, description, date, start, end) VALUES (?, ?, ?, ?, ?, ?)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+	case "monthly":
+		for i := 0; i < 12; i++ {
+			eventDate := baseDate.AddDate(0, i, 0).Format("2006-01-02")
+			uuid, err := uuid.NewRandom()
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = db.Exec("INSERT INTO events (id, name, description, date, start, end) VALUES (?, ?, ?, ?, ?, ?)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+	default:
+		fmt.Println("Invalid frequency:", newEvent.Frequency)
+	}
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(newEvent)
 }

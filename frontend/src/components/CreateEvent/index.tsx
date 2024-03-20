@@ -39,10 +39,13 @@ const CreateEvent = ({
   hours: string[];
 }) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [startHour, setStartHour] = useState<number | null>(null);
-  const [endHour, setEndHour] = useState<number | null>(null);
+  const [frequency, setFrequency] = useState<string>("Once");
+  const [startHour, setStartHour] = useState<number | null>(0);
+  const [endHour, setEndHour] = useState<number | null>(1);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+
+  const Frequency = ["Once", "Daily", "Weekly", "Monthly"];
 
   function handleCreateEvent() {
     if (startHour !== null && endHour !== null && name) {
@@ -53,6 +56,7 @@ const CreateEvent = ({
         end: endHour,
         name,
         description: description,
+        frequency: frequency.toLowerCase(),
       };
       fetch("/createEvent", {
         method: "POST",
@@ -72,6 +76,7 @@ const CreateEvent = ({
         setEndHour(null);
         setName("");
         setDescription("");
+        setFrequency("Once");
         setEvents([...events, newEvent]);
         toast.success("Event created successfully!");
       });
@@ -107,7 +112,10 @@ const CreateEvent = ({
         <div className="flex w-full items-center justify-between gap-8">
           <Select
             value={startHour?.toString() || "0"}
-            onValueChange={(val) => setStartHour(parseInt(val))}
+            onValueChange={(val) => {
+              setStartHour(parseInt(val));
+              setEndHour(parseInt(val));
+            }}
           >
             <SelectTrigger className="w-full text-md outline-none">
               <SelectValue placeholder="Starts at" />
@@ -145,6 +153,27 @@ const CreateEvent = ({
           </Select>
         </div>
       }
+      <Select
+        value={frequency}
+        onValueChange={(val) => {
+          setFrequency(val);
+        }}
+      >
+        <SelectTrigger className="w-full text-md outline-none">
+          <SelectValue placeholder="Frequency" />
+        </SelectTrigger>
+        <SelectContent>
+          {Frequency.map((freq, index) => (
+            <SelectItem
+              key={index + freq}
+              value={freq}
+              onClick={() => setFrequency(freq)}
+            >
+              {freq}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <Input
         placeholder="Event name"
         onChange={(e) => setName(e.target.value)}
