@@ -82,92 +82,82 @@ const Timesheet = ({
     <div className={styles.timesheet}>
       {hours.map((_, index) => {
         const eventStart = events.find((event) => event.start === index);
-        const ongoingEvent = events.find(
-          (event) => event.start <= index && event.end > index
+        const isWithinEvent = events.some(
+          (event) => index > event.start && index <= event.end
         );
-        const isCurrentHourWithinEvent =
-          ongoingEvent &&
-          currentTime >= ongoingEvent.start &&
-          currentTime < ongoingEvent.end &&
-          isToday;
-
-        const eventBlockHeight = isCurrentHourWithinEvent
-          ? 40 * (ongoingEvent.end - ongoingEvent.start)
+        const eventDuration = eventStart
+          ? eventStart.end + 1 - eventStart.start
           : 0;
-        const minutesSinceEventStart = isCurrentHourWithinEvent
-          ? (currentTime - ongoingEvent.start) * 60 + minutes
-          : 0;
-        const eventDurationMinutes = isCurrentHourWithinEvent
-          ? (ongoingEvent.end - ongoingEvent.start) * 60
-          : 1;
-        const topOffsetPercentage =
-          (minutesSinceEventStart / eventDurationMinutes) * 100;
 
         return (
-          <div key={index} className="relative flex w-full">
-            {isCurrentHourWithinEvent && (
+          !isWithinEvent && (
+            <div key={index} className="relative flex w-full">
+              {isToday && index === currentTime && (
+                <div
+                  className="absolute left-0 w-full h-1 bg-indigo-700 rounded shadow-md z-10"
+                  style={{
+                    top: `${(minutes * 100) / (60 * eventDuration)}%`,
+                  }}
+                />
+              )}
               <div
-                className="absolute left-0 w-full h-1 bg-purple-500 rounded shadow-md z-10"
-                style={{
-                  top: `${(topOffsetPercentage * eventBlockHeight) / 100}px`,
-                }}
-              />
-            )}
-            <div
-              key={index}
-              className={`${
-                eventStart ? styles.hourBlock : styles.hour
-              } relative flex gap-2 border-t-2 px-2 py-4 rounded-xs ${
-                eventStart ? `h-40 bg-green-500` : "h-16"
-              } flex-col ${
-                isDragging &&
-                startHour !== null &&
-                endHour !== null &&
-                index >= startHour &&
-                index <= endHour
-                  ? "bg-green-400 bg-opacity-30 text-white rounded-sm"
-                  : ""
-              }`}
-              onClick={
-                !eventStart
-                  ? () => {
-                      setStartHour(index);
-                      setEndHour(index);
-                      setOpen(true);
-                    }
-                  : () => {
-                      setIsDrawerOpen(true);
-                      setDrawerEvent(eventStart);
-                    }
-              }
-              onMouseDown={eventStart ? () => {} : () => handleMouseDown(index)}
-              onMouseEnter={
-                eventStart
-                  ? () => setEndHour(null)
-                  : () => handleMouseEnter(index)
-              }
-              onMouseUp={handleMouseUp}
-            >
-              <div
-                className={`select-none ${
-                  eventStart
-                    ? "text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm w-fit z-10"
+                key={index}
+                className={`${
+                  eventStart ? styles.hourBlock : styles.hour
+                } relative flex gap-2 border-t-2 px-2 py-4 rounded-xs ${
+                  eventStart ? `h-40 bg-green-500` : "h-16"
+                } flex-col ${
+                  isDragging &&
+                  startHour !== null &&
+                  endHour !== null &&
+                  index >= startHour &&
+                  index <= endHour
+                    ? "bg-green-400 bg-opacity-30 text-white rounded-sm"
                     : ""
                 }`}
+                onClick={
+                  !eventStart
+                    ? () => {
+                        setStartHour(index);
+                        setEndHour(index);
+                        setOpen(true);
+                      }
+                    : () => {
+                        setIsDrawerOpen(true);
+                        setDrawerEvent(eventStart);
+                      }
+                }
+                onMouseDown={
+                  eventStart ? () => {} : () => handleMouseDown(index)
+                }
+                onMouseEnter={
+                  eventStart
+                    ? () => setEndHour(null)
+                    : () => handleMouseEnter(index)
+                }
+                onMouseUp={handleMouseUp}
               >
-                {eventStart
-                  ? `${hours[eventStart.start]} - ${hours[
-                      eventStart.end
-                    ].replace(":00", ":59")}`
-                  : hours[index]}
-              </div>
-              {eventStart && (
-                <div className="rounded-sm font-bold text-xl bg-black text-white bg-opacity-50 p-2 h-full">
-                  {eventStart.name}
+                <div
+                  className={`select-none ${
+                    eventStart
+                      ? "text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm w-fit z-10"
+                      : ""
+                  }`}
+                >
+                  {eventStart
+                    ? `${hours[eventStart.start]} - ${hours[
+                        eventStart.end
+                      ].replace(":00", ":59")}`
+                    : hours[index]}
                 </div>
-              )}
+                {eventStart && (
+                  <div className="rounded-sm font-bold text-xl bg-black text-white bg-opacity-50 p-2 h-full">
+                    {eventStart.name}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )
         );
       })}
       <CreateEvent
