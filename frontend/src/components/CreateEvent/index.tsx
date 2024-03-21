@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DialogContent,
   DialogHeader,
@@ -32,16 +32,20 @@ const CreateEvent = ({
   setEvents,
   events,
   hours,
+  initialStart,
+  initialEnd,
 }: {
   setOpen: any;
   setEvents: any;
   events: any;
   hours: string[];
+  initialStart: number;
+  initialEnd: number;
 }) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [frequency, setFrequency] = useState<string>("Once");
-  const [startHour, setStartHour] = useState<number | null>(0);
-  const [endHour, setEndHour] = useState<number | null>(1);
+  const [startHour, setStartHour] = useState<number>(initialStart);
+  const [endHour, setEndHour] = useState<number>(initialEnd);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
 
@@ -73,7 +77,7 @@ const CreateEvent = ({
 
         setOpen(false);
         setStartHour(0);
-        setEndHour(null);
+        setEndHour(0);
         setName("");
         setDescription("");
         setFrequency("Once");
@@ -82,6 +86,11 @@ const CreateEvent = ({
       });
     }
   }
+
+  useEffect(() => {
+    setStartHour(initialStart);
+    setEndHour(initialEnd);
+  }, [initialStart, initialEnd]);
 
   return (
     <DialogContent>
@@ -111,7 +120,7 @@ const CreateEvent = ({
       {
         <div className="flex w-full items-center justify-between gap-8">
           <Select
-            value={startHour?.toString() || "0"}
+            value={startHour?.toString()}
             onValueChange={(val) => {
               setStartHour(parseInt(val));
               setEndHour(parseInt(val));
@@ -133,7 +142,7 @@ const CreateEvent = ({
           </Select>
           to
           <Select
-            value={endHour?.toString() || "0"}
+            value={endHour?.toString()}
             onValueChange={(val) => setEndHour(parseInt(val))}
           >
             <SelectTrigger className="w-full text-md outline-none">

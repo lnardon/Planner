@@ -35,11 +35,11 @@ const Timesheet = ({
   const handleMouseDown = (hourIndex: number) => {
     setIsDragging(true);
     setStartHour(hourIndex);
-    setEndHour(null);
+    setEndHour(hourIndex);
   };
 
   const handleMouseEnter = (hourIndex: number) => {
-    if (isDragging && startHour !== null) {
+    if (isDragging) {
       setEndHour(hourIndex);
     }
   };
@@ -70,10 +70,6 @@ const Timesheet = ({
     setDate(currentDate);
   }, [currentDate]);
 
-  useEffect(() => {
-    setEndHour(startHour + 1);
-  }, [startHour]);
-
   const currentTime = new Date().getHours();
   const minutes = new Date().getMinutes();
   const isToday = date && date.toDateString() === new Date().toDateString();
@@ -85,14 +81,20 @@ const Timesheet = ({
         const isWithinEvent = events.some(
           (event) => index > event.start && index <= event.end
         );
-        const eventDuration = eventStart
+        const eventDuration = isWithinEvent
+          ? events.find((event) => index > event.start && index <= event.end)
+              .end +
+            1 -
+            events.find((event) => index > event.start && index <= event.end)
+              .start
+          : eventStart
           ? eventStart.end + 1 - eventStart.start
-          : 0;
+          : 1;
 
         return (
           !isWithinEvent && (
             <div key={index} className="relative flex w-full">
-              {isToday && index === currentTime && (
+              {isToday && (index === currentTime || isWithinEvent) && (
                 <div
                   className="absolute left-0 w-full h-1 bg-indigo-700 rounded shadow-md z-10"
                   style={{
@@ -165,6 +167,8 @@ const Timesheet = ({
         hours={hours}
         setEvents={setEvents}
         setOpen={setOpen}
+        initialStart={startHour}
+        initialEnd={endHour || startHour}
       />
       <EventDetail
         drawerEvent={drawerEvent}
