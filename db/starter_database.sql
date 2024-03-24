@@ -9,8 +9,8 @@ CREATE TABLE Events (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    start INTEGER NOT NULL,
-    end INTEGER NOT NULL,
+    startTime INTEGER NOT NULL,
+    endTime INTEGER NOT NULL,
     date TEXT NOT NULL
 );
 

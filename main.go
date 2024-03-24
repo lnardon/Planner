@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func main () {
