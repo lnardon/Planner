@@ -26,6 +26,11 @@ const Timesheet = ({
       description: "Tonight",
     },
   ]);
+  const [currentTime, setCurrentTime] = useState<number>(new Date().getHours());
+  const [minutes, setMinutes] = useState<number>(new Date().getMinutes());
+  const [isToday, setIsToday] = useState<boolean>(
+    date ? date.toDateString() === new Date().toDateString() : false
+  );
 
   const hours = Array.from(
     { length: 24 },
@@ -68,11 +73,25 @@ const Timesheet = ({
 
   useEffect(() => {
     setDate(currentDate);
+    setIsToday(
+      currentDate
+        ? currentDate.toDateString() === new Date().toDateString()
+        : false
+    );
   }, [currentDate]);
 
-  const currentTime = new Date().getHours();
-  const minutes = new Date().getMinutes();
-  const isToday = date && date.toDateString() === new Date().toDateString();
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().getHours());
+      setMinutes(new Date().getMinutes());
+      setIsToday(
+        currentDate
+          ? currentDate.toDateString() === new Date().toDateString()
+          : false
+      );
+    }, 60000);
+    return () => clearInterval(interval);
+  });
 
   return (
     <div className={styles.timesheet}>
@@ -96,7 +115,7 @@ const Timesheet = ({
             <div key={index} className="relative flex w-full">
               {isToday && (index === currentTime || isWithinEvent) && (
                 <div
-                  className="absolute left-0 w-full h-1 bg-indigo-700 rounded shadow-md z-10"
+                  className="absolute left-0 w-full h-1 bg-indigo-700 rounded shadow-md z-10 animate-pulse transition-all duration-10000"
                   style={{
                     top: `${(minutes * 100) / (60 * eventDuration)}%`,
                   }}

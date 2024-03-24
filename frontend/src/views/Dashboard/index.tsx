@@ -37,7 +37,7 @@ const Dashboard: React.FC = () => {
               }
               className="rounded-md border-2 border-white border-opacity-60"
             />
-            <div className="w-full flex gap-4 flex-col border-2 rounded-md border-white border-opacity-60">
+            <div className="w-full border-2 rounded-md border-white border-opacity-60 box-content">
               <Select
                 onValueChange={(val) => setCurrentView(val)}
                 defaultValue={currentView}
@@ -45,11 +45,17 @@ const Dashboard: React.FC = () => {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="View" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todo" className="cursor-pointer">
+                <SelectContent className="rounded-none rounded-b-md border-white border-opacity-60 bg-[#030609]">
+                  <SelectItem
+                    value="todo"
+                    className="cursor-pointer transition-all"
+                  >
                     Todo List
                   </SelectItem>
-                  <SelectItem value="timesheet" className="cursor-pointer">
+                  <SelectItem
+                    value="timesheet"
+                    className="cursor-pointer transition-all"
+                  >
                     Timesheet
                   </SelectItem>
                 </SelectContent>
