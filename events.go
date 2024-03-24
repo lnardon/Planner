@@ -29,13 +29,14 @@ func handleGetEventsByDate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("sqlite3", "./db/database.db")
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT id, name, description, date, start, end FROM events WHERE date = ?", date)
+	rows, err := db.Query("SELECT id, name, description, date, startTime, endTime FROM events WHERE date = $1", date)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -71,7 +72,8 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./db/database.db")
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,7 +86,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 
 	switch newEvent.Frequency {
 	case "once":
-		_, err := db.Exec("INSERT INTO events (id, name, description, date, start, end) VALUES (?, ?, ?, ?, ?, ?)", newEvent.ID, newEvent.Name, newEvent.Description, newEvent.Date, newEvent.Start, newEvent.End)
+		_, err := db.Exec("INSERT INTO events (id, name, description, date, startTime, endTime) VALUES ($1, $2, $3, $4, $5, $6)", newEvent.ID, newEvent.Name, newEvent.Description, newEvent.Date, newEvent.Start, newEvent.End)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -96,7 +98,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = db.Exec("INSERT INTO events (id, name, description, date, start, end) VALUES (?, ?, ?, ?, ?, ?)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			_, err = db.Exec("INSERT INTO events (id, name, description, date, startTime, endTime) VALUES ($1, $2, $3, $4, $5, $6)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -109,7 +111,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = db.Exec("INSERT INTO events (id, name, description, date, start, end) VALUES (?, ?, ?, ?, ?, ?)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			_, err = db.Exec("INSERT INTO events (id, name, description, date, startTime, endTime) VALUES ($1, $2, $3, $4, $5, $6)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -122,7 +124,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = db.Exec("INSERT INTO events (id, name, description, date, start, end) VALUES (?, ?, ?, ?, ?, ?)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			_, err = db.Exec("INSERT INTO events (id, name, description, date, startTime, endTime) VALUES ($1, $2, $3, $4, $5, $6)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -144,13 +146,14 @@ func handleDeleteEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./db/database.db")
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	statement, err := db.Prepare("DELETE FROM events WHERE id = ?")
+	statement, err := db.Prepare("DELETE FROM events WHERE id = $1")
 	if err != nil {
 		log.Fatal(err)
 	}

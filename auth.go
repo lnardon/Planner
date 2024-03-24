@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -26,61 +26,74 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+const (
+  host     = "localhost"
+  port     = 5432
+  user     = "planner_db"
+  password = "posty_passy"
+  dbname   = "postgres"
+)
+
 func handleLogin(w http.ResponseWriter, r *http.Request) {
-	var login Request
-	err := json.NewDecoder(r.Body).Decode(&login)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
+    var login Request
+    err := json.NewDecoder(r.Body).Decode(&login)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./db/database.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+    postInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+    "password=%s dbname=%s sslmode=disable",
+    host, port, user, password, dbname)
+  
+    db, err := sql.Open("postgres", postInfo)
+    if err != nil {
+        panic(err)
+    }
+    defer db.Close()
+    
+    statement, err := db.Prepare("SELECT username, password FROM users WHERE username = $1")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer statement.Close()
 
-	statement, err := db.Prepare("SELECT username, password FROM users WHERE username = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer statement.Close()
+    var username, hashedPassword string
+    err = statement.QueryRow(login.Username).Scan(&username, &hashedPassword)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+        } else {
+            log.Fatal(err)
+        }
+        return
+    }
 
-	var username, hashedPassword string
-	err = statement.QueryRow(login.Username).Scan(&username, &hashedPassword)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Invalid username or password", http.StatusUnauthorized)
-		} else {
-			log.Fatal(err)
-		}
-		return
-	}
+    if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(login.Password)); err != nil {
+        http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+        return
+    }
 
-	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(login.Password)); err != nil {
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
-		return
-	}
+    expirationTime := time.Now().Add(120 * time.Minute)
+    claims := &Claims{
+        Username: username,
+        RegisteredClaims: jwt.RegisteredClaims{
+            ExpiresAt: jwt.NewNumericDate(expirationTime),
+        },
+    }
 
-	expirationTime := time.Now().Add(360 * time.Minute)
-	claims := &Claims{
-		Username: username,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    tokenString, err := token.SignedString(jwtKey)
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(tokenString)
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(tokenString)
 }
+
 
 func handleRegister(w http.ResponseWriter, r *http.Request) {
 	var register Request
@@ -91,17 +104,16 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("sqlite3", "./db/database.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+    postInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+    "password=%s dbname=%s sslmode=disable",
+    host, port, user, password, dbname)
+  
+    db, err := sql.Open("postgres", postInfo)
+    if err != nil {
+        panic(err)
+    }
 
-	statement, err := db.Prepare("INSERT INTO users (id, username, password) VALUES (?, ?, ?)")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer statement.Close()
+    defer db.Close()
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), 16)
 	if err != nil {
@@ -110,7 +122,11 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := uuid.New().String()
-	_, err = statement.Exec(id, register.Username, string(hashedPassword))
+	sqlStatement := `
+	INSERT INTO users (id, username, password)
+	VALUES ($1, $2, $3)
+	`
+	err = db.QueryRow(sqlStatement, id, register.Username, hashedPassword).Scan()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -146,16 +162,22 @@ func verifyJWT(endpointHandler http.HandlerFunc) http.HandlerFunc {
 }
 
 func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("sqlite3", "./db/database.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+    postInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+    "password=%s dbname=%s sslmode=disable",
+    host, port, user, password, dbname)
+  
+    db, err := sql.Open("postgres", postInfo)
+    if err != nil {
+        panic(err)
+    }
+
+    defer db.Close()
 
 	var count int
 	err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+        fmt.Print(err)
 		return
 	}
 
