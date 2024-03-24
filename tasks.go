@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -29,8 +28,7 @@ func handleCreateTask(w http.ResponseWriter, r *http.Request) {
     }
     defer r.Body.Close()
 
-    connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-    db, err := sql.Open("postgres", connStr)
+    db, err := sql.Open("postgres", connectionString)
     if err != nil {
         log.Fatal(err)
     }
@@ -61,8 +59,7 @@ func handleGetTasksByDate(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-    db, err := sql.Open("postgres", connStr)
+    db, err := sql.Open("postgres", connectionString)
     if err != nil {
         log.Fatal(err)
     }
@@ -104,8 +101,7 @@ func handleUpdateTaskStatus(w http.ResponseWriter, r *http.Request) {
     }
     defer r.Body.Close()
 
-    connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-    db, err := sql.Open("postgres", connStr)
+    db, err := sql.Open("postgres", connectionString)
     if err != nil {
         log.Fatal(err)
     }
@@ -140,8 +136,7 @@ func handleDeleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", connStr)
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatal(err)
 	}

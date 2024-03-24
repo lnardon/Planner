@@ -34,6 +34,8 @@ const (
   dbname   = "postgres"
 )
 
+var connectionString = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
 func handleLogin(w http.ResponseWriter, r *http.Request) {
     var login Request
     err := json.NewDecoder(r.Body).Decode(&login)
@@ -42,12 +44,8 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
         return
     }
     defer r.Body.Close()
-
-    postInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-    "password=%s dbname=%s sslmode=disable",
-    host, port, user, password, dbname)
   
-    db, err := sql.Open("postgres", postInfo)
+    db, err := sql.Open("postgres", connectionString)
     if err != nil {
         panic(err)
     }
@@ -103,12 +101,8 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-
-    postInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-    "password=%s dbname=%s sslmode=disable",
-    host, port, user, password, dbname)
   
-    db, err := sql.Open("postgres", postInfo)
+    db, err := sql.Open("postgres", connectionString)
     if err != nil {
         panic(err)
     }
@@ -161,19 +155,15 @@ func verifyJWT(endpointHandler http.HandlerFunc) http.HandlerFunc {
     }
 }
 
-func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
-    postInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-    "password=%s dbname=%s sslmode=disable",
-    host, port, user, password, dbname)
-  
-    db, err := sql.Open("postgres", postInfo)
+func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {  
+    db, err := sql.Open("postgres", connectionString)
     if err != nil {
         panic(err)
     }
 
     defer db.Close()
 
-	var count int
+	count := 0
 	err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -188,6 +178,4 @@ func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(true)
 	}
-
-
 }

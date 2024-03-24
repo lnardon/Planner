@@ -29,8 +29,7 @@ func handleGetEventsByDate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", connStr)
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,8 +71,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", connStr)
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,9 +82,11 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("Error parsing base date:", err)
 	}
 
+	queryString := "INSERT INTO events (id, name, description, date, startTime, endTime) VALUES ($1, $2, $3, $4, $5, $6)"
+
 	switch newEvent.Frequency {
 	case "once":
-		_, err := db.Exec("INSERT INTO events (id, name, description, date, startTime, endTime) VALUES ($1, $2, $3, $4, $5, $6)", newEvent.ID, newEvent.Name, newEvent.Description, newEvent.Date, newEvent.Start, newEvent.End)
+		_, err := db.Exec(queryString, newEvent.ID, newEvent.Name, newEvent.Description, newEvent.Date, newEvent.Start, newEvent.End)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -98,7 +98,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = db.Exec("INSERT INTO events (id, name, description, date, startTime, endTime) VALUES ($1, $2, $3, $4, $5, $6)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			_, err = db.Exec(queryString, uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -111,7 +111,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = db.Exec("INSERT INTO events (id, name, description, date, startTime, endTime) VALUES ($1, $2, $3, $4, $5, $6)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			_, err = db.Exec(queryString, uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -124,7 +124,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = db.Exec("INSERT INTO events (id, name, description, date, startTime, endTime) VALUES ($1, $2, $3, $4, $5, $6)", uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			_, err = db.Exec(queryString, uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -146,8 +146,7 @@ func handleDeleteEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", connStr)
+	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		log.Fatal(err)
 	}
