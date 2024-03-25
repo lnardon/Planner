@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import styles from "./styles.module.css";
 import EventDetail from "../EventDetail";
 import CreateEvent from "../CreateEvent";
+import { apiHandler } from "@/utils/apiHandler";
 
 const Timesheet = ({
   currentDate,
@@ -57,18 +58,18 @@ const Timesheet = ({
   };
 
   useEffect(() => {
-    fetch(`/getEvents?date=${date?.toISOString().split("T")[0]}`, {
-      method: "GET",
-      headers: {
-        Authorization: `${localStorage.getItem("token")}`,
-      },
-    }).then((res) => {
-      if (res.ok) {
-        res.json().then((data) => {
+    (async () => {
+      const raw = await apiHandler(
+        `/getEvents?date=${date?.toISOString().split("T")[0]}`,
+        "GET",
+        "application/json"
+      );
+      if (raw.ok) {
+        raw.json().then((data) => {
           setEvents(data || []);
         });
       }
-    });
+    })();
   }, [date]);
 
   useEffect(() => {

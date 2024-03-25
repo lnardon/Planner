@@ -1,4 +1,5 @@
 import AnimatedText from "@/components/AnimatedText";
+import { apiHandler } from "@/utils/apiHandler";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -11,61 +12,67 @@ const Login = ({
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  function handleLogin() {
+  async function handleLogin() {
     toast.info("Logging in...");
-    fetch("/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    }).then((res) => {
-      if (res.status != 200) {
-        toast.error("Error logging in. Please try again.");
-      }
-      res.json().then((data) => {
-        localStorage.setItem("token", data);
-        setIsLoggedIn(true);
-      });
+    let raw = await apiHandler(
+      "/login",
+      "POST",
+      "application/json",
+      JSON.stringify({ username, password })
+    );
+
+    if (raw.status != 200) {
+      toast.error("Error logging in. Please try again.");
+      return;
+    }
+
+    raw.json().then((data) => {
+      localStorage.setItem("token", data);
+      setIsLoggedIn(true);
     });
   }
 
-  function checkUser() {
-    fetch("/hasUserRegistered", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((res) => {
-      if (res.status != 200) {
-        toast.warn("Error checking if user has registered.");
-      }
-      res.json().then((data) => {
-        setHasUserRegistered(data);
-      });
+  async function checkUser() {
+    let raw = await apiHandler("/hasUserRegistered", "GET", "application/json");
+    if (raw.status != 200) {
+      toast.warn("Error checking if user has registered.");
+      return;
+    }
+    raw.json().then((data) => {
+      setHasUserRegistered(data);
     });
   }
 
-  function createAccount() {
+  async function createAccount() {
     toast.info("Creating account...");
-    fetch("/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    }).then((res) => {
-      if (res.status != 200) {
-        toast.warn("Error creating account. Please try again.");
-      }
-      toast.success("Account created successfully. Please login and enjoy!");
-      setHasUserRegistered(true);
-    });
+    let raw = await apiHandler(
+      "/register",
+      "POST",
+      "application/json",
+      JSON.stringify({ username, password })
+    );
+    if (raw.status != 200) {
+      toast.warn("Error creating account. Please try again.");
+      return;
+    }
+    toast.success("Account created successfully. Please login and enjoy!");
+    setHasUserRegistered(true);
   }
 
   useEffect(() => {
-    checkUser();
-  }, []);
+    fetch("/isTokenValid", {
+      method: "GET",
+      headers: {
+        Authorization: `${localStorage.getItem("token")}`,
+      },
+    }).then((res) => {
+      if (res.status === 200) {
+        setIsLoggedIn(true);
+        return;
+      }
+      checkUser();
+    });
+  });
 
   return (
     <div className="flex justify-center items-center w-full flex-1">

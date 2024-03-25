@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
+import { apiHandler } from "@/utils/apiHandler";
 
 const CreateEvent = ({
   setOpen,
@@ -51,7 +52,7 @@ const CreateEvent = ({
 
   const Frequency = ["Once", "Daily", "Weekly", "Monthly"];
 
-  function handleCreateEvent() {
+  async function handleCreateEvent() {
     if (startHour !== null && endHour !== null && name) {
       let newEvent = {
         id: uuidv4(),
@@ -62,28 +63,25 @@ const CreateEvent = ({
         description: description,
         frequency: frequency.toLowerCase(),
       };
-      fetch("/createEvent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(newEvent),
-      }).then((res) => {
-        if (!res.ok) {
-          toast.error("Error creating event");
-          return;
-        }
+      let raw = await apiHandler(
+        "/createEvent",
+        "POST",
+        "application/json",
+        JSON.stringify(newEvent)
+      );
+      if (!raw.ok) {
+        toast.error("Error creating event");
+        return;
+      }
 
-        setOpen(false);
-        setStartHour(0);
-        setEndHour(0);
-        setName("");
-        setDescription("");
-        setFrequency("Once");
-        setEvents([...events, newEvent]);
-        toast.success("Event created successfully!");
-      });
+      setOpen(false);
+      setStartHour(0);
+      setEndHour(0);
+      setName("");
+      setDescription("");
+      setFrequency("Once");
+      setEvents([...events, newEvent]);
+      toast.success("Event created successfully!");
     }
   }
 

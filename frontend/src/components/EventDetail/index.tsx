@@ -12,6 +12,7 @@ import { ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { toast } from "react-toastify";
+import { apiHandler } from "@/utils/apiHandler";
 
 const EventDetail = ({
   isDrawerOpen,
@@ -26,27 +27,22 @@ const EventDetail = ({
   setEvents: any;
   events: any;
 }) => {
-  function handleDeleteEvent() {
+  async function handleDeleteEvent() {
     if (drawerEvent) {
-      fetch("/deleteEvent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          id: drawerEvent.id,
-        }),
-      }).then((res) => {
-        if (!res.ok) {
-          toast.error("Error deleting event");
-          return;
-        }
+      let raw = await apiHandler(
+        "/deleteEvent",
+        "POST",
+        "application/json",
+        JSON.stringify({ id: drawerEvent.id })
+      );
+      if (!raw.ok) {
+        toast.error("Error deleting event");
+        return;
+      }
 
-        setIsDrawerOpen(false);
-        setEvents(events.filter((event: any) => event.id !== drawerEvent.id));
-        toast.success("Event deleted successfully!");
-      });
+      setIsDrawerOpen(false);
+      setEvents(events.filter((event: any) => event.id !== drawerEvent.id));
+      toast.success("Event deleted successfully!");
     }
   }
 

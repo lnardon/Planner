@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
+import { apiHandler } from "@/utils/apiHandler";
 
 const TodoList = ({
   currentDate,
@@ -48,16 +49,14 @@ const TodoList = ({
         date: date?.toISOString().split("T")[0],
         completed: false,
       };
-      const res = await fetch("/createTask", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(newTask),
-      });
+      const raw = await apiHandler(
+        "/createTask",
+        "POST",
+        "application/json",
+        JSON.stringify(newTask)
+      );
 
-      if (!res.ok) {
+      if (!raw.ok) {
         toast.error("Error creating task");
         return;
       }
@@ -70,19 +69,17 @@ const TodoList = ({
   }
 
   async function handleUpdateTask(task: any) {
-    const res = await fetch("/updateTask", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({
+    const raw = await apiHandler(
+      "/updateTask",
+      "POST",
+      "application/json",
+      JSON.stringify({
         id: task.id,
         completed: !task.completed,
-      }),
-    });
+      })
+    );
 
-    if (!res.ok) {
+    if (!raw.ok) {
       toast.error("Error updating task");
       return;
     }
@@ -101,18 +98,15 @@ const TodoList = ({
   }
 
   async function handleDeleteTask(taskId: string) {
-    const res = await fetch("/deleteTask", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({
+    const raw = await apiHandler(
+      "/deleteTask",
+      "POST",
+      "application/json",
+      JSON.stringify({
         id: taskId,
-      }),
-    });
-
-    if (!res.ok) {
+      })
+    );
+    if (!raw.ok) {
       toast.error("Error deteting task");
       return;
     }
@@ -122,18 +116,18 @@ const TodoList = ({
   }
 
   useEffect(() => {
-    fetch(`/getTasks?date=${date?.toISOString().split("T")[0]}`, {
-      method: "GET",
-      headers: {
-        Authorization: `${localStorage.getItem("token")}`,
-      },
-    }).then((res) => {
-      if (res.ok) {
-        res.json().then((data) => {
+    async () => {
+      const raw = await apiHandler(
+        `/getTasks?date=${date?.toISOString().split("T")[0]}`,
+        "GET",
+        "application/json"
+      );
+      if (raw.ok) {
+        raw.json().then((data) => {
           setTasks(data || []);
         });
       }
-    });
+    };
   }, [date]);
 
   useEffect(() => {
