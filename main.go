@@ -10,6 +10,7 @@ func main () {
     http.HandleFunc("/login", handleLogin)
     http.HandleFunc("/register", handleRegister)
     http.HandleFunc("/hasUserRegistered", handleHasUserRegistered)
+    http.HandleFunc("/isTokenValid", verifyJWT(handleIsTokenValid))
 
     http.HandleFunc("/getTasks", verifyJWT(handleGetTasksByDate))
     http.HandleFunc("/createTask", verifyJWT(handleCreateTask))

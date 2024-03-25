@@ -179,3 +179,7 @@ func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(true)
 	}
 }
+
+func handleIsTokenValid(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(http.StatusOK)
+}
