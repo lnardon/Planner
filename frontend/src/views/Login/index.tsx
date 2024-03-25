@@ -13,7 +13,7 @@ const Login = ({
   const [password, setPassword] = useState<string>("");
 
   async function handleLogin() {
-    toast.info("Logging in...");
+    const toastId = toast.info("Logging in...");
     let raw = await apiHandler(
       "/login",
       "POST",
@@ -22,12 +22,22 @@ const Login = ({
     );
 
     if (raw.status != 200) {
-      toast.error("Error logging in. Please try again.");
+      toast.update(toastId, {
+        render: "Error logging in. Please try again.",
+        type: "error",
+        isLoading: false,
+      });
       return;
     }
 
     raw.json().then((data) => {
       localStorage.setItem("token", data);
+      toast.update(toastId, {
+        render: "Logged in successfully.",
+        type: "success",
+        isLoading: false,
+        progress: 100,
+      });
       setIsLoggedIn(true);
     });
   }
