@@ -116,7 +116,7 @@ const TodoList = ({
   }
 
   useEffect(() => {
-    async () => {
+    (async () => {
       const raw = await apiHandler(
         `/getTasks?date=${date?.toISOString().split("T")[0]}`,
         "GET",
@@ -127,7 +127,7 @@ const TodoList = ({
           setTasks(data || []);
         });
       }
-    };
+    })();
   }, [date]);
 
   useEffect(() => {
