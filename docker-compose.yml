@@ -2,20 +2,37 @@ version: "3.9"
 
 services:
   db:
+    container_name: planner_db
     image: postgres
     restart: always
     environment:
       POSTGRES_PASSWORD: posty_passy
       POSTGRES_USER: planner_db
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: planner_db
     volumes:
       - ./pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - planner-network
+    ports:
+      - "5432:5432"
 
   planner:
     build: .
     restart: always
     ports:
-      - "8080:8080"
+      - "8085:8080"
     depends_on:
       - db
+    environment:
+      POSTGRES_PASSWORD: posty_passy
+      POSTGRES_USER: planner_db
+      POSTGRES_DB: planner_db
+      DB_PORT: 5432
+      DB_HOST: db
+    networks:
+      - planner-network
+
+networks:
+  planner-network:
+    driver: bridge

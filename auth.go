@@ -26,12 +26,20 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+// var (
+//   host     = os.Getenv("DB_HOST")
+//   port,_     = strconv.Atoi(os.Getenv("DB_PORT"))
+//   user     = os.Getenv("POSTGRES_USER")
+//   password = os.Getenv("POSTGRES_PASSWORD")
+//   dbname   = os.Getenv("POSTGRES_DB")
+// )
+
 const (
-  host     = "localhost"
+  host     = "db"
   port     = 5432
   user     = "planner_db"
   password = "posty_passy"
-  dbname   = "postgres"
+  dbname   = "planner_db"
 )
 
 var connectionString = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
