@@ -9,13 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import Settings from "../Settings";
 import { useState } from "react";
 
 const Header: React.FC = () => {
@@ -70,17 +64,10 @@ const Header: React.FC = () => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle className="text-3xl">Settings</SheetTitle>
-            <SheetDescription>
-              Currently there are no settings to configure.
-            </SheetDescription>
-          </SheetHeader>
-        </SheetContent>
-      </Sheet>
+      <Settings
+        isSettingsOpen={isSettingsOpen}
+        setIsSettingsOpen={setIsSettingsOpen}
+      />
     </div>
   );
 };
