@@ -17,16 +17,7 @@ const Timesheet = ({
   const [endHour, setEndHour] = useState<number | null>(startHour + 1);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [drawerEvent, setDrawerEvent] = useState<any>(null);
-  const [events, setEvents] = useState<any[]>([
-    {
-      id: "0",
-      date: date?.toISOString().split("T")[0],
-      start: 1,
-      end: 2,
-      name: "Save the world",
-      description: "Tonight",
-    },
-  ]);
+  const [events, setEvents] = useState<any[]>([]);
   const [currentTime, setCurrentTime] = useState<number>(new Date().getHours());
   const [minutes, setMinutes] = useState<number>(new Date().getMinutes());
   const [isToday, setIsToday] = useState<boolean>(

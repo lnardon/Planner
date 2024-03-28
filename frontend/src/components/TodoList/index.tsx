@@ -28,16 +28,7 @@ const TodoList = ({
   currentDate: Date;
   setOpen: any;
 }) => {
-  const [tasks, setTasks] = useState([
-    {
-      id: uuidv4(),
-      name: "New task",
-      date: new Date(new Date().toLocaleDateString())
-        .toISOString()
-        .split("T")[0],
-      completed: false,
-    },
-  ]);
+  const [tasks, setTasks] = useState<any[]>([]);
   const [date, setDate] = useState<Date>(currentDate);
   const [taskName, setTaskName] = useState<string>("");
 
