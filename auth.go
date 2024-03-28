@@ -35,7 +35,7 @@ type Claims struct {
 // )
 
 const (
-  host     = "db"
+  host     = "localhost"
   port     = 5432
   user     = "planner_db"
   password = "posty_passy"
@@ -189,5 +189,34 @@ func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleIsTokenValid(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(http.StatusOK)
+}
+
+type Settings struct {
+    RangeStart string `json:"startHour"`
+    RangeEnd string `json:"endHour"`
+}
+
+func handleSettings(w http.ResponseWriter, r *http.Request) {
+    var settings Settings
+	err := json.NewDecoder(r.Body).Decode(&settings)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	db, err := sql.Open("postgres", connectionString)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+    statement, err := db.Prepare("UPDATE users SET range_start = $1, range_end = $2 WHERE username = $3")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer statement.Close()
+
     w.WriteHeader(http.StatusOK)
 }
