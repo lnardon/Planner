@@ -98,7 +98,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
     }
 
     statement, err = db.Prepare(`
-        SELECT s.range_start, s.range_end 
+        SELECT s.range_start, s.range_end, s.disable_notifications 
         FROM "Settings" s
         JOIN "Users" u ON u.settings_id = s.id
         WHERE u.id = $1`)
@@ -108,14 +108,15 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
     defer statement.Close()
 
     var rangeStart, rangeEnd int
-    err = statement.QueryRow(id).Scan(&rangeStart, &rangeEnd)
+    var disableNotifications bool
+    err = statement.QueryRow(id).Scan(&rangeStart, &rangeEnd, &disableNotifications)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
 
     w.WriteHeader(http.StatusOK)
-    json.NewEncoder(w).Encode(map[string]string{"token": tokenString, "rangeStart": strconv.Itoa(rangeStart), "rangeEnd": strconv.Itoa(rangeEnd)})
+    json.NewEncoder(w).Encode(map[string]string{"token": tokenString, "rangeStart": strconv.Itoa(rangeStart), "rangeEnd": strconv.Itoa(rangeEnd), "disableNotifications": strconv.FormatBool(disableNotifications)})
 }
 
 
