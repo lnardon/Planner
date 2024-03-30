@@ -9,6 +9,7 @@ import (
 type Settings struct {
     RangeStart int `json:"startHour"`
     RangeEnd int `json:"endHour"`
+    DisableNotifications bool `json:"disableNotifications"`
 }
 
 func handleSettings(w http.ResponseWriter, r *http.Request) {
@@ -28,9 +29,9 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 
     statement, err := db.Prepare(`
         UPDATE "Settings" s
-        SET range_start = $1, range_end = $2
+        SET range_start = $1, range_end = $2, disable_notifications = $3
         FROM "Users" u
-        WHERE u.settings_id = s.id AND u.id = $3`)
+        WHERE u.settings_id = s.id AND u.id = $4`)
     if err != nil {
         log.Fatal(err)
     }
@@ -42,7 +43,7 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    _, err = statement.Exec(settings.RangeStart, settings.RangeEnd, id)
+    _, err = statement.Exec(settings.RangeStart, settings.RangeEnd, settings.DisableNotifications, id)
 
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)

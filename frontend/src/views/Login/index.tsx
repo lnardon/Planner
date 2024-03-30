@@ -11,6 +11,9 @@ const Login = ({
 }) => {
   const setRangeStart = useSettingsStore((state) => state.setRangeStart);
   const setRangeEnd = useSettingsStore((state) => state.setRangeEnd);
+  const setDisableNotifications = useSettingsStore(
+    (state) => state.setDisableNotifications
+  );
   const [hasUserRegistered, setHasUserRegistered] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -36,6 +39,7 @@ const Login = ({
     raw.json().then((data) => {
       setRangeStart(data.rangeStart);
       setRangeEnd(data.rangeEnd);
+      setDisableNotifications(data.disableNotifications);
       localStorage.setItem("token", data.token);
       toast.update(toastId, {
         render: "Logged in successfully.",
@@ -80,7 +84,7 @@ const Login = ({
     fetch("/isTokenValid", {
       method: "GET",
       headers: {
-        Authorization: `${localStorage.getItem("token")}`,
+        Authorization: `${localStorage.getItem("token")}` || "",
       },
     }).then((res) => {
       if (res.status === 200) {

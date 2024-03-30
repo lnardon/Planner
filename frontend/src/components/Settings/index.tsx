@@ -12,6 +12,8 @@ import { apiHandler } from "@/utils/apiHandler";
 import { toast } from "react-toastify";
 import { Separator } from "@/components/ui/separator";
 import { useSettingsStore } from "@/utils/settingsStore";
+import { Checkbox } from "../ui/checkbox";
+import { CheckedState } from "@radix-ui/react-checkbox";
 
 interface Props {
   isSettingsOpen: boolean;
@@ -23,6 +25,12 @@ const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
   const storeRangeEnd = useSettingsStore((state: any) => state.rangeEnd);
   const setRangeStart = useSettingsStore((state: any) => state.setRangeStart);
   const setRangeEnd = useSettingsStore((state: any) => state.setRangeEnd);
+  const setDisableNotifications = useSettingsStore(
+    (state: any) => state.setDisableNotifications
+  );
+  const disableNotifications = useSettingsStore(
+    (state: any) => state.disableNotifications
+  );
 
   const hours = Array.from(
     { length: 24 },
@@ -30,13 +38,20 @@ const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
   );
   const [startHour, setStartHour] = useState<number | null>(storeRangeStart);
   const [endHour, setEndHour] = useState<number | null>(storeRangeEnd);
+  const [notifications, setNotifications] = useState<boolean>(
+    disableNotifications === "true"
+  );
 
   async function handleSave() {
     let raw = await apiHandler(
       "/setSettings",
       "POST",
       "application/json",
-      JSON.stringify({ startHour, endHour: parseInt(endHour as any) })
+      JSON.stringify({
+        startHour: parseInt(startHour as any),
+        endHour: parseInt(endHour as any),
+        disableNotifications: notifications,
+      })
     );
     if (!raw.ok) {
       toast.error("Failed to save settings");
@@ -46,8 +61,16 @@ const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
     toast.success("Settings saved successfully");
     setRangeStart(startHour);
     setRangeEnd(endHour);
+    setDisableNotifications(notifications);
     setIsSettingsOpen(false);
   }
+
+  const handleCheckedChange = (checked: CheckedState) => {
+    if (checked === "indeterminate") {
+    } else {
+      setNotifications(checked);
+    }
+  };
 
   return (
     <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
@@ -101,6 +124,21 @@ const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <Separator className="my-4" />
+        <div className="flex items-center space-x-2 mb-4">
+          <Checkbox
+            id="notifications"
+            className="w-5 h-5"
+            checked={notifications}
+            onCheckedChange={handleCheckedChange}
+          />
+          <label
+            htmlFor="notifications"
+            className="text-lg font-medium text-gray-300"
+          >
+            Disable notifications
+          </label>
         </div>
         <Separator className="my-4" />
         <Button className="w-full" onClick={handleSave}>
