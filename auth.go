@@ -11,7 +11,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -24,26 +23,9 @@ type Request struct {
 
 type Claims struct {
 	Username string `json:"username"`
+    ID string `json:"id"`
 	jwt.RegisteredClaims
 }
-
-// var (
-//   host     = os.Getenv("DB_HOST")
-//   port,_     = strconv.Atoi(os.Getenv("DB_PORT"))
-//   user     = os.Getenv("POSTGRES_USER")
-//   password = os.Getenv("POSTGRES_PASSWORD")
-//   dbname   = os.Getenv("POSTGRES_DB")
-// )
-
-const (
-  host     = "localhost"
-  port     = 5432
-  user     = "planner_db"
-  password = "posty_passy"
-  dbname   = "planner_db"
-)
-
-var connectionString = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
     var login Request
@@ -54,9 +36,9 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
     }
     defer r.Body.Close()
   
-    db, err := sql.Open("postgres", connectionString)
+    db, err := getDB()
     if err != nil {
-        panic(err)
+        log.Fatal(err)
     }
     defer db.Close()
     
@@ -85,6 +67,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
     expirationTime := time.Now().Add(120 * time.Minute)
     claims := &Claims{
         Username: username,
+        ID:       id,
         RegisteredClaims: jwt.RegisteredClaims{
             ExpiresAt: jwt.NewNumericDate(expirationTime),
         },
@@ -129,11 +112,10 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
   
-    db, err := sql.Open("postgres", connectionString)
+    db, err := getDB()
     if err != nil {
-        panic(err)
+        log.Fatal(err)
     }
-
     defer db.Close()
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(register.Password), 16)
@@ -144,25 +126,25 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 
 	id := uuid.New().String()
     settings_id := uuid.New().String()
-    statement, err := db.Prepare(`INSERT INTO "Users" (id, username, password, settings_id) VALUES ($1, $2, $3, $4)`)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer statement.Close()
-
-    _, err = statement.Exec(id, register.Username, hashedPassword, settings_id)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-
-    statement, err = db.Prepare(`INSERT INTO "Settings" (id, range_start, range_end, disable_notifications) VALUES ($1, $2, $3, $4)`)
+    statement, err := db.Prepare(`INSERT INTO "Settings" (id, range_start, range_end, disable_notifications) VALUES ($1, $2, $3, $4)`)
     if err != nil {
         log.Fatal(err)
     }
     defer statement.Close()
 
     _, err = statement.Exec(settings_id, 0, 23, false)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    statement, err = db.Prepare(`INSERT INTO "Users" (id, username, password, settings_id) VALUES ($1, $2, $3, $4)`)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer statement.Close()
+
+    _, err = statement.Exec(id, register.Username, hashedPassword, settings_id)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -197,12 +179,26 @@ func verifyJWT(endpointHandler http.HandlerFunc) http.HandlerFunc {
     }
 }
 
-func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {  
-    db, err := sql.Open("postgres", connectionString)
+func GetIDFromJWT(tokenString string) (string, error) {
+    token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
     if err != nil {
-        panic(err)
+        return "", err
     }
 
+    if claims, ok := token.Claims.(jwt.MapClaims); ok {
+        if id, ok := claims["id"].(string); ok {
+            return id, nil
+        }
+        return "", fmt.Errorf("id claim not found")
+    }
+    return "", fmt.Errorf("invalid token claims")
+}
+
+func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {  
+    db, err := getDB()
+    if err != nil {
+        log.Fatal(err)
+    }
     defer db.Close()
 
 	count := 0
@@ -223,41 +219,5 @@ func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleIsTokenValid(w http.ResponseWriter, r *http.Request) {
-    w.WriteHeader(http.StatusOK)
-}
-
-type Settings struct {
-    RangeStart int `json:"startHour"`
-    RangeEnd int `json:"endHour"`
-}
-
-func handleSettings(w http.ResponseWriter, r *http.Request) {
-    var settings Settings
-	err := json.NewDecoder(r.Body).Decode(&settings)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-
-	db, err := sql.Open("postgres", connectionString)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-    statement, err := db.Prepare(`UPDATE "Settings" SET range_start = $1, range_end = $2 WHERE id = $3`)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer statement.Close()
-
-    _, err = statement.Exec(settings.RangeStart, settings.RangeEnd, "d424783f-ed4d-445f-9642-dd25781d0fe4")
-
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
-
     w.WriteHeader(http.StatusOK)
 }

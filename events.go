@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -22,20 +21,20 @@ type Event struct {
 }
 
 func handleGetEventsByDate(w http.ResponseWriter, r *http.Request) {
-	//EXPECTED FORMAT: "/...?date=2024-01-24"
+	//EXPECTED FORMAT: "?date=2024-01-24"
 	date := r.URL.Query().Get("date")
 	if date == "" {
 		http.Error(w, "Date is required", http.StatusBadRequest)
 		return
 	}
 
-	db, err := sql.Open("postgres", connectionString)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+    db, err := getDB()
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
 
-	rows, err := db.Query("SELECT id, name, description, date, startTime, endTime FROM events WHERE date = $1", date)
+	rows, err := db.Query(`SELECT id, name, description, date, start_time, end_time FROM "Events" WHERE date = $1`, date)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -71,22 +70,28 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("postgres", connectionString)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+    db, err := getDB()
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
 
 	baseDate, err := time.Parse("2006-01-02", newEvent.Date)
 	if err != nil {
 		log.Fatal("Error parsing base date:", err)
 	}
 
-	queryString := "INSERT INTO events (id, name, description, date, startTime, endTime) VALUES ($1, $2, $3, $4, $5, $6)"
+	queryString := `INSERT INTO "Events" (id, name, description, date, start_time, end_time, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+
+	user_id, err := GetIDFromJWT(r.Header["Authorization"][0])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	switch newEvent.Frequency {
 	case "once":
-		_, err := db.Exec(queryString, newEvent.ID, newEvent.Name, newEvent.Description, newEvent.Date, newEvent.Start, newEvent.End)
+		_, err := db.Exec(queryString, newEvent.ID, newEvent.Name, newEvent.Description, newEvent.Date, newEvent.Start, newEvent.End,user_id)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -98,7 +103,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = db.Exec(queryString, uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			_, err = db.Exec(queryString, uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End,user_id)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -111,7 +116,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = db.Exec(queryString, uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			_, err = db.Exec(queryString, uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End,user_id)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -124,7 +129,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			_, err = db.Exec(queryString, uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End)
+			_, err = db.Exec(queryString, uuid, newEvent.Name, newEvent.Description, eventDate, newEvent.Start, newEvent.End,user_id)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -146,13 +151,13 @@ func handleDeleteEvent(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("postgres", connectionString)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+    db, err := getDB()
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
 
-	statement, err := db.Prepare("DELETE FROM events WHERE id = $1")
+	statement, err := db.Prepare(`DELETE FROM "Events" WHERE id = $1`)
 	if err != nil {
 		log.Fatal(err)
 	}

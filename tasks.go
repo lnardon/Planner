@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -28,7 +27,7 @@ func handleCreateTask(w http.ResponseWriter, r *http.Request) {
     }
     defer r.Body.Close()
 
-    db, err := sql.Open("postgres", connectionString)
+    db, err := getDB()
     if err != nil {
         log.Fatal(err)
     }
@@ -59,7 +58,7 @@ func handleGetTasksByDate(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    db, err := sql.Open("postgres", connectionString)
+    db, err := getDB()
     if err != nil {
         log.Fatal(err)
     }
@@ -101,7 +100,7 @@ func handleUpdateTaskStatus(w http.ResponseWriter, r *http.Request) {
     }
     defer r.Body.Close()
 
-    db, err := sql.Open("postgres", connectionString)
+    db, err := getDB()
     if err != nil {
         log.Fatal(err)
     }
@@ -136,11 +135,11 @@ func handleDeleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	db, err := sql.Open("postgres", connectionString)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+    db, err := getDB()
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
 
 	statement, err := db.Prepare("DELETE FROM tasks WHERE id = $1")
 	if err != nil {
