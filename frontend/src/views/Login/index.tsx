@@ -1,5 +1,6 @@
 import AnimatedText from "@/components/AnimatedText";
 import { apiHandler } from "@/utils/apiHandler";
+import { useSettingsStore } from "@/utils/settingsStore";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -8,6 +9,8 @@ const Login = ({
 }: {
   setIsLoggedIn: (val: boolean) => void;
 }) => {
+  const setRangeStart = useSettingsStore((state) => state.setRangeStart);
+  const setRangeEnd = useSettingsStore((state) => state.setRangeEnd);
   const [hasUserRegistered, setHasUserRegistered] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -31,12 +34,14 @@ const Login = ({
     }
 
     raw.json().then((data) => {
-      localStorage.setItem("token", data);
+      setRangeStart(data.rangeStart);
+      setRangeEnd(data.rangeEnd);
+      localStorage.setItem("token", data.token);
       toast.update(toastId, {
         render: "Logged in successfully.",
         type: "success",
         isLoading: false,
-        progress: 100,
+        autoClose: 1900,
       });
       setIsLoggedIn(true);
     });
@@ -49,7 +54,9 @@ const Login = ({
       return;
     }
     raw.json().then((data) => {
-      setHasUserRegistered(data);
+      if (data != hasUserRegistered) {
+        setHasUserRegistered(data);
+      }
     });
   }
 
@@ -82,7 +89,7 @@ const Login = ({
       }
       checkUser();
     });
-  });
+  }, []);
 
   return (
     <div className="flex justify-center items-center w-full flex-1">
