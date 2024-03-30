@@ -1,6 +1,6 @@
 FRONTEND_DIR=./frontend
 GO_DIR=.
-SERVER_FILES=main.go auth.go events.go tasks.go
+SERVER_FILES=main.go auth.go events.go tasks.go database.go settings.go
 
 build-frontend:
 	cd $(FRONTEND_DIR) && npm install && npm run build

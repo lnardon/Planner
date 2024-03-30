@@ -17,6 +17,7 @@ const Header: React.FC = () => {
 
   function handleLogout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("settings");
     window.location.reload();
   }
 
