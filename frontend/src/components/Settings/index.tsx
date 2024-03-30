@@ -10,6 +10,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { apiHandler } from "@/utils/apiHandler";
 import { toast } from "react-toastify";
+import { Separator } from "@/components/ui/separator";
+import { useSettingsStore } from "@/utils/settingsStore";
 
 interface Props {
   isSettingsOpen: boolean;
@@ -17,19 +19,24 @@ interface Props {
 }
 
 const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
+  const storeRangeStart = useSettingsStore((state: any) => state.rangeStart);
+  const storeRangeEnd = useSettingsStore((state: any) => state.rangeEnd);
+  const setRangeStart = useSettingsStore((state: any) => state.setRangeStart);
+  const setRangeEnd = useSettingsStore((state: any) => state.setRangeEnd);
+
   const hours = Array.from(
     { length: 24 },
     (_, i) => `${i % 12}:00 ${i < 12 ? "am" : "pm"}`
   );
-  const [startHour, setStartHour] = useState<number | null>(0);
-  const [endHour, setEndHour] = useState<number | null>(23);
+  const [startHour, setStartHour] = useState<number | null>(storeRangeStart);
+  const [endHour, setEndHour] = useState<number | null>(storeRangeEnd);
 
   async function handleSave() {
     let raw = await apiHandler(
       "/setSettings",
       "POST",
       "application/json",
-      JSON.stringify({ startHour, endHour })
+      JSON.stringify({ startHour, endHour: parseInt(endHour as any) })
     );
     if (!raw.ok) {
       toast.error("Failed to save settings");
@@ -37,19 +44,22 @@ const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
     }
 
     toast.success("Settings saved successfully");
+    setRangeStart(startHour);
+    setRangeEnd(endHour);
     setIsSettingsOpen(false);
   }
 
   return (
     <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
       <SheetContent>
-        <SheetHeader className="mb-8">
+        <SheetHeader className="mb-2">
           <SheetTitle className="text-4xl">Settings</SheetTitle>
         </SheetHeader>
+        <Separator className="my-4" />
         <h4 className="text-sm font-medium text-gray-400 mb-1">
-          Select below the time range to be displayed in the calendar.
+          Select the time range to be displayed in the Timesheet.
         </h4>
-        <div className="flex items-center gap-4 py-4 mb-4">
+        <div className="flex items-center gap-4 py-4 mb-2">
           <Select
             value={startHour?.toString()}
             onValueChange={(val) => {
@@ -92,6 +102,7 @@ const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
             </SelectContent>
           </Select>
         </div>
+        <Separator className="my-4" />
         <Button className="w-full" onClick={handleSave}>
           Save
         </Button>

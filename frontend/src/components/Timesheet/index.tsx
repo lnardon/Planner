@@ -3,6 +3,7 @@ import styles from "./styles.module.css";
 import EventDetail from "../EventDetail";
 import CreateEvent from "../CreateEvent";
 import { apiHandler } from "@/utils/apiHandler";
+import { useSettingsStore } from "@/utils/settingsStore";
 
 const Timesheet = ({
   currentDate,
@@ -11,6 +12,8 @@ const Timesheet = ({
   currentDate: Date | undefined;
   setOpen: any;
 }) => {
+  const rangeStart = useSettingsStore((state) => state.rangeStart);
+  const rangeEnd = useSettingsStore((state) => state.rangeEnd);
   const [date, setDate] = useState<Date | undefined>(currentDate);
   const [isDragging, setIsDragging] = useState(false);
   const [startHour, setStartHour] = useState<number>(0);
@@ -88,6 +91,7 @@ const Timesheet = ({
   return (
     <div className={styles.timesheet}>
       {hours.map((_, index) => {
+        const isWithinRange = index >= rangeStart && index <= rangeEnd;
         const eventStart = events.find((event) => event.start === index);
         const isWithinEvent = events.some(
           (event) => index > event.start && index <= event.end
@@ -103,7 +107,8 @@ const Timesheet = ({
           : 1;
 
         return (
-          !isWithinEvent && (
+          !isWithinEvent &&
+          isWithinRange && (
             <div key={index} className="relative flex w-full">
               {isToday && (index === currentTime || isWithinEvent) && (
                 <div

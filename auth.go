@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -59,14 +60,14 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
     }
     defer db.Close()
     
-    statement, err := db.Prepare("SELECT username, password FROM users WHERE username = $1")
+    statement, err := db.Prepare(`SELECT id, username, password FROM "Users" WHERE username = $1`)
     if err != nil {
         log.Fatal(err)
     }
     defer statement.Close()
 
-    var username, hashedPassword string
-    err = statement.QueryRow(login.Username).Scan(&username, &hashedPassword)
+    var id, username, hashedPassword string
+    err = statement.QueryRow(login.Username).Scan(&id, &username, &hashedPassword)
     if err != nil {
         if err == sql.ErrNoRows {
             http.Error(w, "Invalid username or password", http.StatusUnauthorized)
@@ -96,8 +97,25 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    statement, err = db.Prepare(`
+        SELECT s.range_start, s.range_end 
+        FROM "Settings" s
+        JOIN "Users" u ON u.settings_id = s.id
+        WHERE u.id = $1`)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer statement.Close()
+
+    var rangeStart, rangeEnd int
+    err = statement.QueryRow(id).Scan(&rangeStart, &rangeEnd)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
     w.WriteHeader(http.StatusOK)
-    json.NewEncoder(w).Encode(tokenString)
+    json.NewEncoder(w).Encode(map[string]string{"token": tokenString, "rangeStart": strconv.Itoa(rangeStart), "rangeEnd": strconv.Itoa(rangeEnd)})
 }
 
 
@@ -124,15 +142,30 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := uuid.New().String()
-	sqlStatement := `
-	INSERT INTO users (id, username, password)
-	VALUES ($1, $2, $3)
-	`
-	err = db.QueryRow(sqlStatement, id, register.Username, hashedPassword).Scan()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+    settings_id := uuid.New().String()
+    statement, err := db.Prepare(`INSERT INTO "Users" (id, username, password, settings_id) VALUES ($1, $2, $3, $4)`)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer statement.Close()
+
+    _, err = statement.Exec(id, register.Username, hashedPassword, settings_id)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    statement, err = db.Prepare(`INSERT INTO "Settings" (id, range_start, range_end, disable_notifications) VALUES ($1, $2, $3, $4)`)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer statement.Close()
+
+    _, err = statement.Exec(settings_id, 0, 23, false)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -172,7 +205,7 @@ func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
     defer db.Close()
 
 	count := 0
-	err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	err = db.QueryRow(`SELECT COUNT(*) FROM "Users"`).Scan(&count)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
         fmt.Print(err)
@@ -193,8 +226,8 @@ func handleIsTokenValid(w http.ResponseWriter, r *http.Request) {
 }
 
 type Settings struct {
-    RangeStart string `json:"startHour"`
-    RangeEnd string `json:"endHour"`
+    RangeStart int `json:"startHour"`
+    RangeEnd int `json:"endHour"`
 }
 
 func handleSettings(w http.ResponseWriter, r *http.Request) {
@@ -212,11 +245,18 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-    statement, err := db.Prepare("UPDATE users SET range_start = $1, range_end = $2 WHERE username = $3")
+    statement, err := db.Prepare(`UPDATE "Settings" SET range_start = $1, range_end = $2 WHERE id = $3`)
     if err != nil {
         log.Fatal(err)
     }
     defer statement.Close()
+
+    _, err = statement.Exec(settings.RangeStart, settings.RangeEnd, "d424783f-ed4d-445f-9642-dd25781d0fe4")
+
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
     w.WriteHeader(http.StatusOK)
 }
