@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Settings from "../Settings";
 import { useState } from "react";
+import { Settings as SettingsIcons, LogOut } from "lucide-react";
 
 const Header: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -51,16 +52,21 @@ const Header: React.FC = () => {
             </svg>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className="p-1 flex items-start flex-col">
           <DropdownMenuLabel>Account menu</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="cursor-pointer"
+            className="cursor-pointer w-full"
             onClick={() => setIsSettingsOpen(true)}
           >
+            <SettingsIcons className="mr-2 w-4 h-4" />
             Settings
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
+          <DropdownMenuItem
+            className="cursor-pointer w-full"
+            onClick={handleLogout}
+          >
+            <LogOut className="mr-2 w-4 h-4" />
             Logout
           </DropdownMenuItem>
         </DropdownMenuContent>

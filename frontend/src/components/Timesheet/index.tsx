@@ -133,6 +133,9 @@ const Timesheet = ({
                     ? "bg-green-400 bg-opacity-30 text-white rounded-sm"
                     : ""
                 }`}
+                style={{
+                  animationDelay: `${index * 32}ms`,
+                }}
                 onClick={
                   !eventStart
                     ? () => {

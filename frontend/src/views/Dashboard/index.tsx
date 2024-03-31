@@ -37,7 +37,7 @@ const Dashboard: React.FC = () => {
               }
               className="rounded-md border-2 border-white border-opacity-60"
             />
-            <div className="w-full border-2 rounded-md border-white border-opacity-60 box-content">
+            <div className="w-full border-2 rounded-md border-white border-opacity-60 box-content h-fit">
               <Select
                 onValueChange={(val) => setCurrentView(val)}
                 defaultValue={currentView}

@@ -171,4 +171,10 @@ body::-webkit-scrollbar {
   .sidebar {
     flex-direction: column;
   }
+
+  tr {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
 }
