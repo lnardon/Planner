@@ -18,6 +18,7 @@ services:
       - "5432:5432"
 
   planner:
+    container_name: planner_server
     build: .
     restart: always
     ports:
@@ -29,7 +30,8 @@ services:
       POSTGRES_USER: planner_db
       POSTGRES_DB: planner_db
       DB_PORT: 5432
-      DB_HOST: db
+      DB_HOST: planner_db
+      JWT_SECRET: d7b31cf75011920a7b1fed033b93f6be73fa2ddc1026f2ed2441b9c40b76ffc2685ec76e7f52e3a6c4e239371047f16bd9b88fadba2681268e1608bde15f7907 #Change this to your JWT secret key
     networks:
       - planner-network
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var jwtKey = []byte("secret_key") // Change this for a environment variable before release
+var jwtKey = []byte(os.Getenv("JWT_SECRET")) // For some reason the jwtKey needs to be converted to a byte array even though the "SignedString" function takes a string
 
 type Request struct {
 	Username    string `json:"username"`
@@ -210,11 +211,11 @@ func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if count == 0 {
-		w.WriteHeader(http.StatusOK)
+        w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(false)
 	} else {
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(true)
+        w.WriteHeader(http.StatusOK)
+        json.NewEncoder(w).Encode(true)
 	}
 }
 
