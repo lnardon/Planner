@@ -18,6 +18,7 @@ type Event struct {
 	Start       int    `json:"start"`
 	End         int    `json:"end"`
 	Frequency   string `json:"frequency"`
+	Amount 		int    `json:"amount"`
 }
 
 func handleGetEventsByDate(w http.ResponseWriter, r *http.Request) {
@@ -89,6 +90,12 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Make sure eventAmount is at least 1
+	eventAmount :=newEvent.Amount
+	if eventAmount < 1 {
+		eventAmount = 1
+	}
+
 	switch newEvent.Frequency {
 	case "once":
 		_, err := db.Exec(queryString, newEvent.ID, newEvent.Name, newEvent.Description, newEvent.Date, newEvent.Start, newEvent.End,user_id)
@@ -97,7 +104,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "daily":
-		for i := 0; i < 7; i++ {
+		for i := 0; i < eventAmount; i++ {
 			eventDate := baseDate.AddDate(0, 0, i).Format("2006-01-02")
 			uuid, err := uuid.NewRandom()
 			if err != nil {
@@ -110,7 +117,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "weekly":
-		for i := 0; i < 4; i++ {
+		for i := 0; i < eventAmount; i++ {
 			eventDate := baseDate.AddDate(0, 0, i*7).Format("2006-01-02")
 			uuid, err := uuid.NewRandom()
 			if err != nil {
@@ -123,7 +130,7 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "monthly":
-		for i := 0; i < 12; i++ {
+		for i := 0; i < eventAmount; i++ {
 			eventDate := baseDate.AddDate(0, i, 0).Format("2006-01-02")
 			uuid, err := uuid.NewRandom()
 			if err != nil {

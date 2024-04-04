@@ -49,6 +49,7 @@ const CreateEvent = ({
   const [endHour, setEndHour] = useState<number>(initialEnd);
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [amount, setAmount] = useState<number>(1);
 
   const Frequency = ["Once", "Daily", "Weekly", "Monthly"];
 
@@ -62,6 +63,7 @@ const CreateEvent = ({
         name,
         description: description,
         frequency: frequency.toLowerCase(),
+        amount,
       };
       let raw = await apiHandler(
         "/createEvent",
@@ -79,6 +81,7 @@ const CreateEvent = ({
       setEndHour(0);
       setName("");
       setDescription("");
+      setAmount(2);
       setFrequency("Once");
       setEvents([...events, newEvent]);
       toast.success("Event created successfully!");
@@ -160,27 +163,36 @@ const CreateEvent = ({
           </Select>
         </div>
       }
-      <Select
-        value={frequency}
-        onValueChange={(val) => {
-          setFrequency(val);
-        }}
-      >
-        <SelectTrigger className="w-full text-md outline-none">
-          <SelectValue placeholder="Frequency" />
-        </SelectTrigger>
-        <SelectContent>
-          {Frequency.map((freq, index) => (
-            <SelectItem
-              key={index + freq}
-              value={freq}
-              onClick={() => setFrequency(freq)}
-            >
-              {freq}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div>
+        <Select
+          value={frequency}
+          onValueChange={(val) => {
+            setFrequency(val);
+          }}
+        >
+          <SelectTrigger className="w-full text-md outline-none">
+            <SelectValue placeholder="Frequency" />
+          </SelectTrigger>
+          <SelectContent>
+            {Frequency.map((freq, index) => (
+              <SelectItem
+                key={index + freq}
+                value={freq}
+                onClick={() => setFrequency(freq)}
+              >
+                {freq}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {frequency !== "Once" && (
+          <Input
+            placeholder="Repeat event X times"
+            onChange={(e) => setAmount(parseInt(e.target.value))}
+            className="mt-4 w-full"
+          />
+        )}
+      </div>
       <Input
         placeholder="Event name"
         onChange={(e) => setName(e.target.value)}
