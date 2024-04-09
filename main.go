@@ -21,6 +21,7 @@ func main () {
     http.HandleFunc("/getEvents", verifyJWT(handleGetEventsByDate))
     http.HandleFunc("/createEvent", verifyJWT(handleCreateEvent))
     http.HandleFunc("/deleteEvent", verifyJWT(handleDeleteEvent))
+    http.HandleFunc("/updateEvent", verifyJWT(handleUpdateEvent))
     
     port := ":8080"
     err := http.ListenAndServe(port,nil)

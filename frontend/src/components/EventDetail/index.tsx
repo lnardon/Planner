@@ -1,18 +1,20 @@
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Badge } from "../ui/badge";
-import { ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { toast } from "react-toastify";
 import { apiHandler } from "@/utils/apiHandler";
+import EditEvent from "../EditEvent";
+import AnimatedText from "animated-text-letters";
+import "animated-text-letters/index.css";
+import { useState } from "react";
+import { Dialog } from "@radix-ui/react-dialog";
 
 const EventDetail = ({
   isDrawerOpen,
@@ -27,6 +29,8 @@ const EventDetail = ({
   setEvents: any;
   events: any;
 }) => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
   async function handleDeleteEvent() {
     if (drawerEvent) {
       let raw = await apiHandler(
@@ -46,10 +50,41 @@ const EventDetail = ({
     }
   }
 
+  function handleOpenEdit() {
+    setIsEditing(true);
+  }
+
+  const signs = () => {
+    let returnVal = " | ";
+    let idx = drawerEvent.end + 1 - drawerEvent.start;
+    while (idx > 0) {
+      returnVal += " - ";
+      idx--;
+    }
+    returnVal += " | ";
+    return returnVal;
+  };
+
   return (
     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
       <DrawerContent className="w-full flex items-center">
-        <div className="min-w-96 max-w-[35rem] w-full m-4 p-6 bg-green-500 rounded-md">
+        <div className="min-w-96 max-w-[35rem] w-full m-4 p-6 bg-green-600 bg-opacity-100 rounded-md">
+          {drawerEvent && (
+            <div className="flex flex-row text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm mb-2 w-fit items-center overflow-hidden">
+              <AnimatedText
+                text={`${drawerEvent?.start % 12}:00 ${
+                  drawerEvent?.start < 12 ? "am" : "pm"
+                }${signs()}${drawerEvent.end % 12}:59 ${
+                  drawerEvent?.end < 12 ? "am" : "pm"
+                }`}
+                animation="slide-up"
+                delay={8}
+                easing="ease"
+                animationDuration={384}
+                transitionOnlyDifferentLetters={true}
+              />
+            </div>
+          )}
           <div className="p-2 bg-black bg-opacity-80 rounded-md">
             <DrawerHeader>
               <DrawerTitle className="mb-0 text-2xl flex flex-wrap break-all">
@@ -57,30 +92,22 @@ const EventDetail = ({
               </DrawerTitle>
               <Separator className="mb-2 bg-white" />
               {drawerEvent?.description && (
-                <DrawerDescription className="mb-4  flex flex-wrap break-all">
+                <DrawerDescription className="mb-4  flex flex-wrap break-all whitespace-pre-wrap">
                   {drawerEvent?.description}
                 </DrawerDescription>
               )}
-              {drawerEvent && (
-                <div className="flex gap-0.5 w-100 md:justify-start sm:justify-center">
-                  <Badge className="text-sm font-bold bg-black text-white border-solid border-2 border-white hover:bg-white hover:text-black">{`${
-                    drawerEvent?.start % 12
-                  }:00 ${drawerEvent?.start < 12 ? "am" : "pm"}`}</Badge>
-                  <ChevronRight />
-                  <Badge className="text-sm font-bold bg-black text-white border-solid border-2 border-white hover:bg-white hover:text-black">{`${
-                    drawerEvent.end % 12
-                  }:59 ${drawerEvent?.end < 12 ? "am" : "pm"}`}</Badge>
-                </div>
-              )}
             </DrawerHeader>
-            <DrawerFooter>
-              <DrawerClose>
-                <Button variant="outline" className="w-full hover:bg-black">
-                  Close
-                </Button>
-              </DrawerClose>
+            <DrawerFooter className="flex flex-row w-full">
               <Button
-                className="bg-red-600 font-bold text-white hover:bg-red-600"
+                variant="outline"
+                className="flex-1 hover:bg-white hover:text-black"
+                onClick={handleOpenEdit}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 bg-red-600 font-bold text-white hover:bg-red-600"
                 onClick={handleDeleteEvent}
               >
                 Delete
@@ -89,6 +116,20 @@ const EventDetail = ({
           </div>
         </div>
       </DrawerContent>
+      <Dialog open={isEditing} onOpenChange={setIsEditing} key={Math.random()}>
+        <EditEvent
+          setOpen={setIsEditing}
+          setDrawerOpen={setIsDrawerOpen}
+          setEvents={setEvents}
+          events={events}
+          initialStart={drawerEvent?.start}
+          initialEnd={drawerEvent?.end}
+          initialName={drawerEvent?.name}
+          initialDescription={drawerEvent?.description}
+          id={drawerEvent?.id}
+          initialDate={drawerEvent?.date}
+        />
+      </Dialog>
     </Drawer>
   );
 };

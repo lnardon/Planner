@@ -178,3 +178,33 @@ func handleDeleteEvent(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func handleUpdateEvent(w http.ResponseWriter, r *http.Request) {
+	var updatedEvent Event
+	err := json.NewDecoder(r.Body).Decode(&updatedEvent)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	db, err := getDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	statement, err := db.Prepare(`UPDATE "Events" SET name = $1, description = $2, date = $3, start_time = $4, end_time = $5 WHERE id = $6`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(updatedEvent.Name, updatedEvent.Description, updatedEvent.Date, updatedEvent.Start, updatedEvent.End, updatedEvent.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
