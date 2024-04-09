@@ -187,6 +187,7 @@ const CreateEvent = ({
         </Select>
         {frequency !== "Once" && (
           <Input
+            type="number"
             placeholder="Repeat event X times"
             onChange={(e) => setAmount(parseInt(e.target.value))}
             className="mt-4 w-full"

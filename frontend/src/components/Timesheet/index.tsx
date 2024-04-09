@@ -106,6 +106,17 @@ const Timesheet = ({
           ? eventStart.end + 1 - eventStart.start
           : 1;
 
+        const signs = () => {
+          let returnVal = " | ";
+          let idx = eventDuration;
+          while (idx > 0) {
+            returnVal += " - ";
+            idx--;
+          }
+          returnVal += " | ";
+          return returnVal;
+        };
+
         return (
           !isWithinEvent &&
           isWithinRange && (
@@ -123,14 +134,14 @@ const Timesheet = ({
                 className={`${
                   eventStart ? styles.hourBlock : styles.hour
                 } relative flex gap-2 border-t-2 px-2 py-4 rounded-xs ${
-                  eventStart ? `h-40 bg-green-500` : "h-16"
+                  eventStart ? `h-40 bg-green-600` : "h-16"
                 } flex-col ${
                   isDragging &&
                   startHour !== null &&
                   endHour !== null &&
                   index >= startHour &&
                   index <= endHour
-                    ? "bg-green-400 bg-opacity-30 text-white rounded-sm"
+                    ? "bg-green-500 bg-opacity-30 text-white rounded-sm"
                     : ""
                 }`}
                 style={{
@@ -166,7 +177,7 @@ const Timesheet = ({
                   }`}
                 >
                   {eventStart
-                    ? `${hours[eventStart.start]} - ${hours[
+                    ? `${hours[eventStart.start]} ${signs()} ${hours[
                         eventStart.end
                       ].replace(":00", ":59")}`
                     : hours[index]}
