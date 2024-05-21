@@ -83,10 +83,6 @@ body::-webkit-scrollbar {
   animation: opaqueFadeIn 0.5s ease forwards;
 }
 
-.taskContainer:hover {
-  background-color: #ffffff11;
-}
-
 .deleteButton {
   opacity: 0;
   transition: all 0.3s ease;

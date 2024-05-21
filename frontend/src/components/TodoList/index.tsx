@@ -89,6 +89,11 @@ const TodoList = ({
   }
 
   async function handleDeleteTask(taskId: string) {
+    let confirm = window.confirm("Are you sure you want to delete this task?");
+    if (!confirm) {
+      return;
+    }
+
     const raw = await apiHandler(
       "/deleteTask",
       "POST",
@@ -169,7 +174,9 @@ const TodoList = ({
         <div
           key={task.id}
           className={cn(
-            "flex cursor-pointer w-100 relative items-center px-2 py-3 rounded-sm border-b-2",
+            `flex cursor-pointer w-100 relative items-center px-2 py-3 rounded-sm border-b-2 ${
+              task.completed ? "bg-gray-200" : "bg-white"
+            }}`,
             task.completed ? "opaqueTaskContainer" : "taskContainer"
           )}
           style={{ animationDelay: `${index * 80}ms` }}
@@ -191,7 +198,12 @@ const TodoList = ({
             onClick={() => handleDeleteTask(task.id)}
             className="absolute right-2 w-5 h-5 rounded-sm deleteButton"
           >
-            <X className="w-full h-full" stroke="#c80004" />
+            <X
+              className="w-full h-full"
+              stroke="#c80004"
+              strokeWidth={2.5}
+              size={22}
+            />
           </button>
         </div>
       ))}

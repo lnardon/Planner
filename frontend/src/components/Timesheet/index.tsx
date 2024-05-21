@@ -199,6 +199,7 @@ const Timesheet = ({
         setOpen={setOpen}
         initialStart={startHour}
         initialEnd={endHour || startHour}
+        currentDate={currentDate || new Date()}
       />
       <EventDetail
         drawerEvent={drawerEvent}

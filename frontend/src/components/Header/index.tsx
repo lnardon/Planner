@@ -63,10 +63,10 @@ const Header: React.FC = () => {
             Settings
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="cursor-pointer w-full"
+            className="cursor-pointer w-full text-red-600"
             onClick={handleLogout}
           >
-            <LogOut className="mr-2 w-4 h-4" />
+            <LogOut className="mr-2 w-4 h-4" color="red" />
             Logout
           </DropdownMenuItem>
         </DropdownMenuContent>

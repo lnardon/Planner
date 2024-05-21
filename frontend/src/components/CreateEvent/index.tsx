@@ -35,6 +35,7 @@ const CreateEvent = ({
   hours,
   initialStart,
   initialEnd,
+  currentDate,
 }: {
   setOpen: any;
   setEvents: any;
@@ -42,8 +43,9 @@ const CreateEvent = ({
   hours: string[];
   initialStart: number;
   initialEnd: number;
+  currentDate: Date;
 }) => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(currentDate);
   const [frequency, setFrequency] = useState<string>("Once");
   const [startHour, setStartHour] = useState<number>(initialStart);
   const [endHour, setEndHour] = useState<number>(initialEnd);
@@ -92,6 +94,10 @@ const CreateEvent = ({
     setStartHour(initialStart);
     setEndHour(initialEnd);
   }, [initialStart, initialEnd]);
+
+  useEffect(() => {
+    setDate(currentDate);
+  }, [currentDate]);
 
   return (
     <DialogContent>
