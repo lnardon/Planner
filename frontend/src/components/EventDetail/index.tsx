@@ -100,14 +100,14 @@ const EventDetail = ({
             <DrawerFooter className="flex flex-row w-full">
               <Button
                 variant="outline"
-                className="flex-1 hover:bg-white hover:text-black"
+                className="flex-1 bg-white hover:bg-gray-300 font-bold hover:text-black text-black transition-colors duration-300"
                 onClick={handleOpenEdit}
               >
                 Edit
               </Button>
               <Button
                 variant="outline"
-                className="flex-1 bg-red-600 font-bold text-white hover:bg-red-600"
+                className="flex-1 bg-red-600 font-bold text-white hover:bg-red-800 transition-colors duration-300"
                 onClick={handleDeleteEvent}
               >
                 Delete

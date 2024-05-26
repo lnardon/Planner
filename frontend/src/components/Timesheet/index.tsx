@@ -143,15 +143,13 @@ const Timesheet = ({
                   index <= endHour
                     ? "bg-green-500 bg-opacity-30 text-white rounded-sm"
                     : ""
-                }
-                  ${
-                    isWithinRange && isToday && eventStart?.end < currentTime
-                      ? "filter grayscale"
-                      : ""
-                  }
-                `}
+                }`}
                 style={{
                   animationDelay: `${index * 32}ms`,
+                  filter:
+                    isWithinRange && isToday && eventStart?.end < currentTime
+                      ? "opacity(0.25)"
+                      : "",
                 }}
                 onClick={
                   !eventStart
