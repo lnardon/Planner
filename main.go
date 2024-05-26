@@ -12,6 +12,7 @@ func main () {
     http.HandleFunc("/hasUserRegistered", handleHasUserRegistered)
     http.HandleFunc("/isTokenValid", verifyJWT(handleIsTokenValid))
     http.HandleFunc("/setSettings", verifyJWT(handleSettings))
+    http.HandleFunc("/changePassword", verifyJWT(handleChangePassword))
 
     http.HandleFunc("/getTasks", verifyJWT(handleGetTasksByDate))
     http.HandleFunc("/createTask", verifyJWT(handleCreateTask))
@@ -25,10 +26,10 @@ func main () {
     
     port := ":8080"
     err := http.ListenAndServe(port,nil)
+    fmt.Println("Server started on port", port)           
     if err != nil {
         fmt.Print("ERROR STARTING SERVER on port", port)
         return
     }
 
-    fmt.Println("Server started on port", port)           
 }

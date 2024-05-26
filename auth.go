@@ -222,3 +222,45 @@ func handleHasUserRegistered(w http.ResponseWriter, r *http.Request) {
 func handleIsTokenValid(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
 }
+
+func handleChangePassword(w http.ResponseWriter, r *http.Request) {
+    var changePassword Request
+    err := json.NewDecoder(r.Body).Decode(&changePassword)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+    defer r.Body.Close()
+
+    db, err := getDB()
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+
+    id, err := GetIDFromJWT(r.Header["Authorization"][0])
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(changePassword.Password), 16)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    statement, err := db.Prepare(`UPDATE "Users" SET password = $1 WHERE id = $2`)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer statement.Close()
+
+    _, err = statement.Exec(hashedPassword, id)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+}

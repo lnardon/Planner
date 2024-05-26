@@ -65,6 +65,24 @@ const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
     setIsSettingsOpen(false);
   }
 
+  function handlePasswordUpdate() {
+    let newPass = prompt("Enter new password");
+    if (newPass) {
+      apiHandler(
+        "/changePassword",
+        "POST",
+        "application/json",
+        JSON.stringify({ password: newPass })
+      ).then((res) => {
+        if (res.ok) {
+          toast.success("Password changed successfully");
+        } else {
+          toast.error("Failed to change password");
+        }
+      });
+    }
+  }
+
   const handleCheckedChange = (checked: CheckedState) => {
     if (checked === "indeterminate") {
     } else {
@@ -141,7 +159,17 @@ const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
           </label>
         </div>
         <Separator className="my-4" />
-        <Button className="w-full" onClick={handleSave}>
+        <Button
+          className="w-full bg-gray-200 hover:bg-gray-100"
+          onClick={handlePasswordUpdate}
+        >
+          Change password
+        </Button>
+        <Separator className="my-4" />
+        <Button
+          className="w-full bg-blue-700 hover:bg-blue-600 text-white font-semibold hover:text-gray-200"
+          onClick={handleSave}
+        >
           Save
         </Button>
       </SheetContent>
