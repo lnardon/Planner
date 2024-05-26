@@ -33,13 +33,19 @@ func handleCreateTask(w http.ResponseWriter, r *http.Request) {
     }
     defer db.Close()
 
-    statement, err := db.Prepare("INSERT INTO tasks (id, name, date, completed) VALUES ($1, $2, $3, $4)")
+    user_id, err := GetIDFromJWT(r.Header["Authorization"][0])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+    statement, err := db.Prepare(`INSERT INTO "Tasks" (user_id, id, name, date, completed) VALUES ($1, $2, $3, $4, $5)`)
     if err != nil {
         log.Fatal(err)
     }
     defer statement.Close()
 
-    _, err = statement.Exec(newTask.ID, newTask.Name, newTask.Date, 0)
+    _, err = statement.Exec(user_id, newTask.ID, newTask.Name, newTask.Date, 0)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -64,7 +70,7 @@ func handleGetTasksByDate(w http.ResponseWriter, r *http.Request) {
     }
     defer db.Close()
 
-    rows, err := db.Query("SELECT id, name, completed, date FROM tasks WHERE date = $1", date)
+    rows, err := db.Query(`SELECT id, name, completed, date FROM "Tasks" WHERE date = $1`, date)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
@@ -106,7 +112,7 @@ func handleUpdateTaskStatus(w http.ResponseWriter, r *http.Request) {
     }
     defer db.Close()
 
-    statement, err := db.Prepare("UPDATE tasks SET completed = $1 WHERE id = $2")
+    statement, err := db.Prepare(`UPDATE "Tasks" SET completed = $1 WHERE id = $2`)
     if err != nil {
         log.Fatal(err)
     }
@@ -141,7 +147,7 @@ func handleDeleteTask(w http.ResponseWriter, r *http.Request) {
     }
     defer db.Close()
 
-	statement, err := db.Prepare("DELETE FROM tasks WHERE id = $1")
+	statement, err := db.Prepare(`DELETE FROM "Tasks" WHERE id = $1`)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -28,6 +28,7 @@ export const apiHandler = async (
   if (raw.status === 401) {
     sessionStorage.removeItem("token");
     window.location.href = "/";
+    window.location.reload();
   }
 
   return raw;

@@ -61,11 +61,11 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
     }
 
     if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(login.Password)); err != nil {
-        http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+        http.Error(w, "Invalid username or password", http.StatusNotFound)
         return
     }
 
-    expirationTime := time.Now().Add(120 * time.Minute)
+    expirationTime := time.Now().Add(24 * time.Hour)
     claims := &Claims{
         Username: username,
         ID:       id,
