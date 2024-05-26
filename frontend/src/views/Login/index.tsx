@@ -17,8 +17,10 @@ const Login = ({
   const [hasUserRegistered, setHasUserRegistered] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
 
   async function handleLogin() {
+    setIsLoggingIn(true);
     const toastId = toast.info("Logging in...");
     let raw = await apiHandler(
       "/login",
@@ -33,6 +35,7 @@ const Login = ({
         type: "error",
         isLoading: false,
       });
+      setIsLoggingIn(false);
       return;
     }
 
@@ -49,6 +52,8 @@ const Login = ({
       });
       setIsLoggedIn(true);
     });
+
+    setIsLoggingIn(false);
   }
 
   async function checkUser() {
@@ -66,6 +71,7 @@ const Login = ({
 
   async function createAccount() {
     toast.info("Creating account...");
+    setIsLoggingIn(true);
     let raw = await apiHandler(
       "/register",
       "POST",
@@ -78,6 +84,7 @@ const Login = ({
     }
     toast.success("Account created successfully. Please login and enjoy!");
     setHasUserRegistered(true);
+    setIsLoggingIn(false);
   }
 
   useEffect(() => {
@@ -98,7 +105,7 @@ const Login = ({
   return (
     <div className="flex justify-center items-center w-full flex-1">
       <div className="flex flex-col items-center text-black w-96">
-        <img src="/calendar.png" alt="Logo" className="w-40 mb-2" />
+        <img src="/calendar.png" alt="Logo" className="w-40 mb-4" />
         <div className="text-white mb-12 text-5xl">
           <AnimatedText text="Planner" />
         </div>
@@ -118,9 +125,16 @@ const Login = ({
         />
         <button
           onClick={hasUserRegistered ? handleLogin : createAccount}
-          className="bg-indigo-600 text-white rounded-md p-2 mt-4 w-full text-center cursor-pointer font-bold text-lg"
+          className={`bg-indigo-600 text-white rounded-md p-2 mt-4 w-full text-center cursor-pointer font-bold text-lg ${
+            isLoggingIn && "opacity-40 cursor-not-allowed"
+          }"}}`}
+          disabled={isLoggingIn}
         >
-          {hasUserRegistered ? "Login" : "Create account"}
+          {hasUserRegistered
+            ? isLoggingIn
+              ? "Loading..."
+              : "Login"
+            : "Create account"}
         </button>
       </div>
     </div>

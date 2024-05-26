@@ -76,6 +76,11 @@ module.exports = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.7s ease",
       },
+      grayscale: {
+        90: "90%",
+        80: "80%",
+        20: "20%",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

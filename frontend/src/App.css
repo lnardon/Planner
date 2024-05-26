@@ -7,7 +7,6 @@ body {
   background-color: #030609;
   color: #fafafa;
   -ms-overflow-style: none;
-  scrollbar-width: none;
   scroll-behavior: smooth;
 }
 
