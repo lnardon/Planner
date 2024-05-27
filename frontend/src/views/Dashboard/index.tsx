@@ -64,13 +64,18 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="content">
             <div className="flex justify-between">
-              <div className="text-4xl">
+              <div className="text-4xl font-bold">
                 <AnimatedText
                   text={currentDate
                     ?.toDateString()
                     .split(" ")
                     .slice(1)
                     .join(" ")}
+                  delay={32}
+                  animation="slide-down"
+                  easing="ease-in-out"
+                  animationDuration={304}
+                  transitionOnlyDifferentLetters={true}
                 />
               </div>
               <DialogTrigger className="w-24 animate-fade-in overflow-hidden">

@@ -86,7 +86,9 @@ const CreateEvent = ({
       setAmount(2);
       setFrequency("Once");
       setEvents([...events, newEvent]);
-      toast.success("Event created successfully!");
+      toast.success("Event created successfully!", {
+        autoClose: 2300,
+      });
     }
   }
 
@@ -100,7 +102,7 @@ const CreateEvent = ({
   }, [currentDate]);
 
   return (
-    <DialogContent>
+    <DialogContent className="bg-green-700">
       <DialogHeader className="mb-0">
         <DialogTitle className="text-bold text-2xl text-start">
           Create event
@@ -112,7 +114,7 @@ const CreateEvent = ({
           <Button
             variant={"outline"}
             className={cn(
-              "w-full justify-start text-left font-normal",
+              "w-full justify-start text-left font-normal bg-white text-black",
               !date && "text-muted-foreground"
             )}
           >
@@ -133,7 +135,7 @@ const CreateEvent = ({
               setEndHour(parseInt(val));
             }}
           >
-            <SelectTrigger className="w-full text-md outline-none">
+            <SelectTrigger className="w-full text-md outline-none bg-white text-black">
               <SelectValue placeholder="Starts at" />
             </SelectTrigger>
             <SelectContent>
@@ -147,12 +149,12 @@ const CreateEvent = ({
               ))}
             </SelectContent>
           </Select>
-          to
+          <strong>to</strong>
           <Select
             value={endHour?.toString()}
             onValueChange={(val) => setEndHour(parseInt(val))}
           >
-            <SelectTrigger className="w-full text-md outline-none">
+            <SelectTrigger className="w-full text-md outline-none bg-white text-black">
               <SelectValue placeholder="Ends at" />
             </SelectTrigger>
             <SelectContent>
@@ -176,7 +178,7 @@ const CreateEvent = ({
             setFrequency(val);
           }}
         >
-          <SelectTrigger className="w-full text-md outline-none">
+          <SelectTrigger className="w-full text-md outline-none bg-white text-black">
             <SelectValue placeholder="Frequency" />
           </SelectTrigger>
           <SelectContent>
@@ -196,21 +198,25 @@ const CreateEvent = ({
             type="number"
             placeholder="Repeat event X times"
             onChange={(e) => setAmount(parseInt(e.target.value))}
-            className="mt-4 w-full"
+            className="mt-4 w-full bg-white text-black"
           />
         )}
       </div>
       <Input
         placeholder="Event name"
         onChange={(e) => setName(e.target.value)}
+        className="bg-white text-black"
       />
       <Textarea
         placeholder="Event description..."
-        className="w-full h-32 mb-8"
+        className="w-full h-32 mb-8 bg-white text-black"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <Button className="font-bold w-full" onClick={handleCreateEvent}>
+      <Button
+        className="font-bold w-full bg-black text-white hover:bg-slate-800"
+        onClick={handleCreateEvent}
+      >
         Done
         <Check className="pl-2" />
       </Button>

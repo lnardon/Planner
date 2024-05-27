@@ -29,9 +29,16 @@ const Header: React.FC = () => {
         styles.container
       )}
     >
-      <div className="text-4xl flex gap-4 items-center">
+      <div className="text-4xl flex gap-4 items-center font-bold">
         <img src="/calendar.png" alt="Logo" className="w-10" />
-        <AnimatedText text="Planner" />
+        <AnimatedText
+          text="Planner"
+          delay={48}
+          animation="slide-right"
+          easing="ease"
+          animationDuration={405}
+          transitionOnlyDifferentLetters={true}
+        />
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger>

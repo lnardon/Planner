@@ -46,7 +46,9 @@ const EventDetail = ({
 
       setIsDrawerOpen(false);
       setEvents(events.filter((event: any) => event.id !== drawerEvent.id));
-      toast.success("Event deleted successfully!");
+      toast.success("Event deleted successfully!", {
+        autoClose: 2100,
+      });
     }
   }
 

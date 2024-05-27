@@ -105,9 +105,16 @@ const Login = ({
   return (
     <div className="flex justify-center items-center w-full flex-1">
       <div className="flex flex-col items-center text-black w-96">
-        <img src="/calendar.png" alt="Logo" className="w-40 mb-4" />
-        <div className="text-white mb-12 text-5xl">
-          <AnimatedText text="Planner" />
+        <img src="/calendar.png" alt="Logo" className="w-40 mb-8" />
+        <div className="text-white mb-12 text-5xl font-bold">
+          <AnimatedText
+            text="Planner"
+            delay={36}
+            animation="slide-down"
+            easing="ease-in-out"
+            animationDuration={505}
+            transitionOnlyDifferentLetters={true}
+          />
         </div>
         <input
           type="text"

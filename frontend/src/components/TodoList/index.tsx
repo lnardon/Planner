@@ -55,7 +55,9 @@ const TodoList = ({
       setTasks([...tasks, newTask]);
       setTaskName("");
       setOpen(false);
-      toast.success("Task created successfully!");
+      toast.success("Task created successfully!", {
+        autoClose: 2100,
+      });
     }
   }
 
@@ -79,7 +81,9 @@ const TodoList = ({
       tasks.map((t) => {
         if (t.id === task.id) {
           if (!t.completed) {
-            toast.info("Task completed!");
+            toast.info("Task completed!", {
+              autoClose: 1900,
+            });
           }
           return { ...t, completed: !t.completed };
         }
@@ -108,7 +112,9 @@ const TodoList = ({
     }
 
     setTasks(tasks.filter((task) => task.id !== taskId));
-    toast.success("Task deleted successfully!");
+    toast.success("Task deleted successfully!", {
+      autoClose: 1900,
+    });
   }
 
   useEffect(() => {
