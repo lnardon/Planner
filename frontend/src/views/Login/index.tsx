@@ -1,4 +1,4 @@
-import AnimatedText from "@/components/AnimatedText";
+import AnimatedText from "animated-text-letters";
 import { apiHandler } from "@/utils/apiHandler";
 import { useSettingsStore } from "@/utils/settingsStore";
 import { useEffect, useState } from "react";

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import AnimatedText from "../AnimatedText";
+import AnimatedText from "animated-text-letters";
 import styles from "./styles.module.css";
 import {
   DropdownMenu,

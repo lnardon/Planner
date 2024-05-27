@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Header from "../../components/Header";
-import AnimatedText from "../../components/AnimatedText";
+import AnimatedText from "animated-text-letters";
 import { Plus } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
