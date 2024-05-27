@@ -90,7 +90,6 @@ func handleCreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Make sure eventAmount is at least 1
 	eventAmount :=newEvent.Amount
 	if eventAmount < 1 {
 		eventAmount = 1
