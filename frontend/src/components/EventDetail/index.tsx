@@ -92,7 +92,7 @@ const EventDetail = ({
               </DrawerTitle>
               <Separator className="mb-2 bg-white" />
               {drawerEvent?.description && (
-                <DrawerDescription className="mb-4  flex flex-wrap break-all whitespace-pre-wrap">
+                <DrawerDescription className="mb-4 flex flex-wrap break-all whitespace-pre-wrap w-full text-start">
                   {drawerEvent?.description}
                 </DrawerDescription>
               )}

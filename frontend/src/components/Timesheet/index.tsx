@@ -148,10 +148,22 @@ const Timesheet = ({
                   animationDelay: `${index * 32}ms`,
                   filter:
                     isWithinRange && isToday && eventStart?.end < currentTime
-                      ? "opacity(0.25)"
+                      ? "opacity(0.5)"
                       : "",
                 }}
                 onClick={
+                  !eventStart
+                    ? () => {
+                        setStartHour(index);
+                        setEndHour(index);
+                        setOpen(true);
+                      }
+                    : () => {
+                        setIsDrawerOpen(true);
+                        setDrawerEvent(eventStart);
+                      }
+                }
+                onTouchEnd={
                   !eventStart
                     ? () => {
                         setStartHour(index);

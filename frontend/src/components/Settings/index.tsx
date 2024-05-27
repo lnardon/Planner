@@ -80,6 +80,7 @@ const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
           toast.error("Failed to change password");
         }
       });
+      setIsSettingsOpen(false);
     }
   }
 
