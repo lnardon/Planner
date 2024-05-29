@@ -117,18 +117,26 @@ const Timesheet = ({
           return returnVal;
         };
 
+        const hasEventInRange = events.some(
+          (event) => index >= event.start && index <= event.end
+        );
+
         return (
           !isWithinEvent &&
           isWithinRange && (
             <div key={index} className="relative flex w-full">
-              {isToday && (index === currentTime || isWithinEvent) && (
-                <div
-                  className="absolute left-0 w-full h-1 bg-indigo-700 rounded shadow-md z-10 animate-pulse transition-all duration-10000"
-                  style={{
-                    top: `${(minutes * 100) / (60 * eventDuration)}%`,
-                  }}
-                />
-              )}
+              {isToday &&
+                (index === currentTime ||
+                  (hasEventInRange && index === currentTime)) && (
+                  <div
+                    className="absolute left-0 w-full h-1 bg-indigo-600 rounded shadow-lg z-10 animate-pulse transition-all duration-10000"
+                    style={{
+                      top: `${((minutes * 100) / (60 * eventDuration)).toFixed(
+                        2
+                      )}%`,
+                    }}
+                  />
+                )}
               <div
                 key={index}
                 className={`${
@@ -147,7 +155,8 @@ const Timesheet = ({
                 style={{
                   animationDelay: `${index * 32}ms`,
                   filter:
-                    isWithinRange && isToday && eventStart?.end < currentTime
+                    (isToday && eventStart?.end < currentTime) ||
+                    (!isToday && eventStart)
                       ? "opacity(0.5)"
                       : "",
                 }}

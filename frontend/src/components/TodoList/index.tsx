@@ -81,7 +81,7 @@ const TodoList = ({
       tasks.map((t) => {
         if (t.id === task.id) {
           if (!t.completed) {
-            toast.info("Task completed!", {
+            toast.success("Task completed!", {
               autoClose: 1900,
             });
           }

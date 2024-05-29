@@ -16,7 +16,6 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Check } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -108,19 +107,18 @@ const EditEvent = ({
   }, [initialStart, initialEnd]);
 
   return (
-    <DialogContent>
+    <DialogContent className="bg-green-600">
       <DialogHeader className="mb-0">
         <DialogTitle className="text-bold text-2xl text-start">
           Edit event
         </DialogTitle>
       </DialogHeader>
-      <Separator className="mb-0" />
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant={"outline"}
             className={cn(
-              "w-full justify-start text-left font-normal",
+              "w-full justify-start text-left font-normal bg-slate-950 text-white",
               !date && "text-muted-foreground"
             )}
           >
@@ -143,7 +141,7 @@ const EditEvent = ({
               }
             }}
           >
-            <SelectTrigger className="w-full text-md outline-none">
+            <SelectTrigger className="w-full text-md outline-none bg-slate-950 text-white">
               <SelectValue placeholder="Starts at" />
             </SelectTrigger>
             <SelectContent>
@@ -157,12 +155,12 @@ const EditEvent = ({
               ))}
             </SelectContent>
           </Select>
-          to
+          <strong className="font-bold text-black">to</strong>
           <Select
             value={endHour?.toString()}
             onValueChange={(val) => setEndHour(parseInt(val))}
           >
-            <SelectTrigger className="w-full text-md outline-none">
+            <SelectTrigger className="w-full text-md outline-none bg-slate-950 text-white">
               <SelectValue placeholder="Ends at" />
             </SelectTrigger>
             <SelectContent>
@@ -183,14 +181,18 @@ const EditEvent = ({
         placeholder="Event name"
         onChange={(e) => setName(e.target.value)}
         value={name}
+        className="bg-slate-950 text-white"
       />
       <Textarea
         placeholder="Event description..."
-        className="w-full h-32 mb-8"
+        className="w-full h-44 mb-4 bg-slate-950 text-white"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <Button className="font-bold w-full" onClick={handleEdit}>
+      <Button
+        className="font-bold w-full shadow-md bg-white text-black hover:bg-gray-100 hover:shadow-lg"
+        onClick={handleEdit}
+      >
         Save
         <Check className="pl-2" />
       </Button>

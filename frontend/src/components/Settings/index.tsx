@@ -68,6 +68,7 @@ const Settings: React.FC<Props> = ({ isSettingsOpen, setIsSettingsOpen }) => {
   function handlePasswordUpdate() {
     let newPass = prompt("Enter new password");
     if (newPass) {
+      toast.info("Changing password...");
       apiHandler(
         "/changePassword",
         "POST",

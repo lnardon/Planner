@@ -16,7 +16,6 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Check } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -102,19 +101,18 @@ const CreateEvent = ({
   }, [currentDate]);
 
   return (
-    <DialogContent className="bg-green-700">
+    <DialogContent className="bg-green-600">
       <DialogHeader className="mb-0">
-        <DialogTitle className="text-bold text-2xl text-start">
+        <DialogTitle className="text-white font-bold text-2xl text-start">
           Create event
         </DialogTitle>
       </DialogHeader>
-      <Separator className="mb-0" />
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant={"outline"}
             className={cn(
-              "w-full justify-start text-left font-normal bg-white text-black",
+              "w-full justify-start text-left font-normal bg-slate-950 text-white",
               !date && "text-muted-foreground"
             )}
           >
@@ -135,7 +133,7 @@ const CreateEvent = ({
               setEndHour(parseInt(val));
             }}
           >
-            <SelectTrigger className="w-full text-md outline-none bg-white text-black">
+            <SelectTrigger className="w-full text-md outline-none bg-slate-950 text-white">
               <SelectValue placeholder="Starts at" />
             </SelectTrigger>
             <SelectContent>
@@ -149,12 +147,12 @@ const CreateEvent = ({
               ))}
             </SelectContent>
           </Select>
-          <strong>to</strong>
+          <strong className="font-bold text-black">to</strong>
           <Select
             value={endHour?.toString()}
             onValueChange={(val) => setEndHour(parseInt(val))}
           >
-            <SelectTrigger className="w-full text-md outline-none bg-white text-black">
+            <SelectTrigger className="w-full text-md outline-none bg-slate-950 text-white">
               <SelectValue placeholder="Ends at" />
             </SelectTrigger>
             <SelectContent>
@@ -178,7 +176,7 @@ const CreateEvent = ({
             setFrequency(val);
           }}
         >
-          <SelectTrigger className="w-full text-md outline-none bg-white text-black">
+          <SelectTrigger className="w-full text-md outline-none bg-slate-950 text-white">
             <SelectValue placeholder="Frequency" />
           </SelectTrigger>
           <SelectContent>
@@ -198,26 +196,26 @@ const CreateEvent = ({
             type="number"
             placeholder="Repeat event X times"
             onChange={(e) => setAmount(parseInt(e.target.value))}
-            className="mt-4 w-full bg-white text-black"
+            className="mt-4 w-full bg-slate-950 text-white"
           />
         )}
       </div>
       <Input
         placeholder="Event name"
         onChange={(e) => setName(e.target.value)}
-        className="bg-white text-black"
+        className="bg-slate-950 text-white"
       />
       <Textarea
         placeholder="Event description..."
-        className="w-full h-32 mb-8 bg-white text-black"
+        className="w-full h-44 mb-4 bg-slate-950 text-white"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
       <Button
-        className="font-bold w-full bg-black text-white hover:bg-slate-800"
+        className="font-bold w-full bg-white text-black hover:bg-gray-100 hover:shadow-lg"
         onClick={handleCreateEvent}
       >
-        Done
+        Create
         <Check className="pl-2" />
       </Button>
     </DialogContent>
