@@ -7,6 +7,7 @@ import (
 
 func main () {
     http.Handle("/", http.FileServer(http.Dir("./frontend/dist")))
+    
     http.HandleFunc("/login", handleLogin)
     http.HandleFunc("/register", handleRegister)
     http.HandleFunc("/hasUserRegistered", handleHasUserRegistered)
