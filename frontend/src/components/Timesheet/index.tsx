@@ -14,6 +14,7 @@ const Timesheet = ({
 }) => {
   const rangeStart = useSettingsStore((state) => state.rangeStart);
   const rangeEnd = useSettingsStore((state) => state.rangeEnd);
+
   const [date, setDate] = useState<Date | undefined>(currentDate);
   const [isDragging, setIsDragging] = useState(false);
   const [startHour, setStartHour] = useState<number>(0);
@@ -91,24 +92,23 @@ const Timesheet = ({
   return (
     <div className={styles.timesheet}>
       {hours.map((_, index) => {
+        const currentEvent = events.find(
+          (event) => index >= event.start && index <= event.end
+        );
         const isWithinRange = index >= rangeStart && index <= rangeEnd;
-        const eventStart = events.find((event) => event.start === index);
         const isWithinEvent = events.some(
           (event) => index > event.start && index <= event.end
         );
-        const eventDuration = isWithinEvent
-          ? events.find((event) => index > event.start && index <= event.end)
-              .end +
-            1 -
-            events.find((event) => index > event.start && index <= event.end)
-              .start
-          : eventStart
-          ? eventStart.end + 1 - eventStart.start
-          : 1;
+        const eventDuration = currentEvent
+          ? currentEvent.end - currentEvent.start
+          : 0;
+        const hasEventInRange = events.some(
+          (event) => index >= event.start && index <= event.end
+        );
 
         const signs = () => {
           let returnVal = " | ";
-          let idx = eventDuration;
+          let idx = eventDuration + 1;
           while (idx > 0) {
             returnVal += " - ";
             idx--;
@@ -117,9 +117,19 @@ const Timesheet = ({
           return returnVal;
         };
 
-        const hasEventInRange = events.some(
-          (event) => index >= event.start && index <= event.end
-        );
+        const currentTimeLinePosition = () => {
+          const currentTotalMinutes = currentTime * 60 + minutes;
+          let blockStartMinutes = index * 60;
+          if (currentEvent) {
+            blockStartMinutes = currentEvent.start * 60;
+          }
+          const minutesSinceBlockStart =
+            currentTotalMinutes - blockStartMinutes;
+          const blockDurationMinutes = currentEvent
+            ? (currentEvent.end + 1 - currentEvent.start) * 60
+            : 60;
+          return (minutesSinceBlockStart / blockDurationMinutes) * 100;
+        };
 
         return (
           !isWithinEvent &&
@@ -127,22 +137,22 @@ const Timesheet = ({
             <div key={index} className="relative flex w-full">
               {isToday &&
                 (index === currentTime ||
-                  (hasEventInRange && index === currentTime)) && (
+                  hasEventInRange ||
+                  index === currentTime) && (
                   <div
-                    className="absolute left-0 w-full h-1 bg-indigo-600 rounded shadow-lg z-10 animate-pulse transition-all duration-10000"
+                    className="absolute left-0 w-full h-1 bg-indigo-600 rounded shadow-lg z-10 animate-pulse transition-all"
                     style={{
-                      top: `${((minutes * 100) / (60 * eventDuration)).toFixed(
-                        2
-                      )}%`,
+                      top: `${currentTimeLinePosition().toFixed(2)}%`,
+                      pointerEvents: "none",
                     }}
                   />
                 )}
               <div
                 key={index}
                 className={`${
-                  eventStart ? styles.hourBlock : styles.hour
+                  currentEvent ? styles.hourBlock : styles.hour
                 } relative flex gap-2 border-t-2 px-2 py-4 rounded-xs ${
-                  eventStart ? `h-40 bg-green-600` : "h-16"
+                  currentEvent ? `h-40 bg-green-600` : "h-16"
                 } flex-col ${
                   isDragging &&
                   startHour !== null &&
@@ -155,13 +165,13 @@ const Timesheet = ({
                 style={{
                   animationDelay: `${index * 32}ms`,
                   filter:
-                    (isToday && eventStart?.end < currentTime) ||
-                    (!isToday && eventStart)
+                    (isToday && currentEvent?.end < currentTime) ||
+                    (!isToday && currentEvent)
                       ? "opacity(0.5)"
                       : "",
                 }}
                 onClick={
-                  !eventStart
+                  !currentEvent
                     ? () => {
                         setStartHour(index);
                         setEndHour(index);
@@ -169,11 +179,11 @@ const Timesheet = ({
                       }
                     : () => {
                         setIsDrawerOpen(true);
-                        setDrawerEvent(eventStart);
+                        setDrawerEvent(currentEvent);
                       }
                 }
                 onTouchEnd={
-                  !eventStart
+                  !currentEvent
                     ? () => {
                         setStartHour(index);
                         setEndHour(index);
@@ -181,14 +191,14 @@ const Timesheet = ({
                       }
                     : () => {
                         setIsDrawerOpen(true);
-                        setDrawerEvent(eventStart);
+                        setDrawerEvent(currentEvent);
                       }
                 }
                 onMouseDown={
-                  eventStart ? () => {} : () => handleMouseDown(index)
+                  currentEvent ? () => {} : () => handleMouseDown(index)
                 }
                 onMouseEnter={
-                  eventStart
+                  currentEvent
                     ? () => setEndHour(null)
                     : () => handleMouseEnter(index)
                 }
@@ -196,20 +206,20 @@ const Timesheet = ({
               >
                 <div
                   className={`select-none ${
-                    eventStart
+                    currentEvent
                       ? "text-white font-regular bg-black h-fit px-2 py-0.5 rounded-sm w-fit z-10"
                       : ""
                   }`}
                 >
-                  {eventStart
-                    ? `${hours[eventStart.start]} ${signs()} ${hours[
-                        eventStart.end
+                  {currentEvent
+                    ? `${hours[currentEvent.start]} ${signs()} ${hours[
+                        currentEvent.end
                       ].replace(":00", ":59")}`
                     : hours[index]}
                 </div>
-                {eventStart && (
+                {currentEvent && (
                   <div className="rounded-sm font-bold text-xl bg-black text-white bg-opacity-50 p-2 h-full">
-                    {eventStart.name}
+                    {currentEvent.name}
                   </div>
                 )}
               </div>

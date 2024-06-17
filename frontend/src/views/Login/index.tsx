@@ -14,7 +14,7 @@ const Login = ({
   const setDisableNotifications = useSettingsStore(
     (state) => state.setDisableNotifications
   );
-  const [hasUserRegistered, setHasUserRegistered] = useState<boolean>(false);
+  const [hasUserRegistered, setHasUserRegistered] = useState<boolean>(true);
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
