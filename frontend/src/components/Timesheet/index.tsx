@@ -103,7 +103,7 @@ const Timesheet = ({
           ? currentEvent.end - currentEvent.start
           : 0;
         const hasEventInRange = events.some(
-          (event) => index > event.start && index <= event.end
+          (event) => index >= event.start && index <= event.end
         );
 
         const signs = () => {
@@ -135,7 +135,7 @@ const Timesheet = ({
           !isWithinEvent &&
           isWithinRange && (
             <div key={index} className="relative flex w-full">
-              {isToday && (index === currentTime || hasEventInRange) && (
+              {isToday && (currentTime === index || hasEventInRange) && (
                 <div
                   className="absolute left-0 w-full h-1 bg-indigo-600 rounded shadow-lg z-10 animate-pulse transition-all"
                   style={{
