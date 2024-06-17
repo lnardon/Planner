@@ -102,9 +102,9 @@ const Timesheet = ({
         const eventDuration = currentEvent
           ? currentEvent.end - currentEvent.start
           : 0;
-        const hasEventInRange = events.some(
-          (event) => index >= event.start && index <= event.end
-        );
+        const hasEventInRange =
+          currentEvent?.start <= currentTime &&
+          currentEvent?.end >= currentTime;
 
         const signs = () => {
           let returnVal = " | ";
